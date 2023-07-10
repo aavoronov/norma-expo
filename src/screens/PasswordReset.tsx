@@ -13,6 +13,8 @@ import ButtonSecondary from "../components/ButtonSecondary";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Image } from "react-native";
 import { updateRole } from "../store/userSlice";
+import useBackButton from "../hooks/useBackButton";
+import { Screens } from "../Screens";
 
 const FormHeader = styled.Text`
   font-size: 22px;
@@ -52,29 +54,15 @@ export default function PasswordReset() {
 
   const onSubmit = (data: typeof defaultValues) => {
     console.log("data", JSON.stringify(data));
-    // navigation.navigate("Quiz");
-    // dispatch(updateRole({ role: "user" }));
     if (data.email === "test@test.ru") {
-      navigation.navigate("MailSent");
+      navigation.navigate(Screens.MailSent);
     } else {
       setNoSuchAccount(true);
       setError("email", { type: "manual", message: "Аккаунт с этой почтой не зарегистрирован" });
     }
   };
 
-  useEffect(() => {
-    navigation.setOptions({
-      headerLeft: () =>
-        navigation.canGoBack() ? (
-          <TouchableOpacity
-            onPress={() => {
-              navigation.goBack();
-            }}>
-            <Image source={require("../../assets/backIcon.png")} style={{ width: 24, height: 24 }} />
-          </TouchableOpacity>
-        ) : null,
-    });
-  }, []);
+  useBackButton();
 
   // const dispatch = useAppDispatch();
   // const signUpHandler = async (values) => {
@@ -118,6 +106,7 @@ export default function PasswordReset() {
                   placeholder='Адрес электронной почты'
                   error={!!errors.email}
                   blurOnSubmit={true}
+                  keyboardType='email-address'
                 />
               )}
               name='email'
@@ -136,7 +125,7 @@ export default function PasswordReset() {
               <ButtonSecondary
                 text='Зарегистрироваться'
                 onPress={() => {
-                  navigation.reset({ index: 0, routes: [{ name: "SignUp" }] });
+                  navigation.reset({ index: 0, routes: [{ name: Screens.SignUp }] });
                 }}
                 style={{ width: "auto" }}
                 textStyle={{ color: THEME.MAIN_RED, lineHeight: 15, fontFamily: THEME.FONTS.SFProText500 }}

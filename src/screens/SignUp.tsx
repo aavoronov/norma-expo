@@ -9,6 +9,9 @@ import TextField from "../components/TextField";
 import { useAppDispatch, useAppNavigation } from "../hooks";
 import { countVisit } from "../store/visitSlice";
 import { THEME } from "../theme";
+import useBackButton from "../hooks/useBackButton";
+import { Screens } from "../Screens";
+import axios from "axios";
 
 const FormHeader = styled.Text`
   font-size: 22px;
@@ -36,24 +39,6 @@ const CheckboxText = styled.Text`
   color: ${THEME.BLACKISH_2D2D31};
 `;
 
-const SignUpBtn = ({ onPress }) => {
-  const BtnText = styled.Text`
-    font-weight: 500;
-    font-size: 16px;
-    line-height: 26px;
-    text-align: center;
-    letter-spacing: -0.3px;
-    color: #9c9da7;
-    margin-bottom: 28px;
-  `;
-
-  return (
-    <TouchableOpacity onPress={onPress}>
-      <BtnText>Сбросить посещение</BtnText>
-    </TouchableOpacity>
-  );
-};
-
 export default function SignUp() {
   const [secure, setSecure] = useState(true);
   const [agreement, setAgreement] = useState(false);
@@ -74,44 +59,30 @@ export default function SignUp() {
     setError,
     clearErrors,
     getValues,
+    watch,
     formState: { isDirty, errors },
   } = useForm({ defaultValues, mode: "onChange", criteriaMode: "all" });
+  const watchAllFields = watch();
 
-  const onSubmit = (data: typeof defaultValues) => {
-    console.log("data", JSON.stringify(data));
-    navigation.navigate("Quiz");
+  const onSubmit = async (data: typeof defaultValues) => {
+    try {
+      // const res = await axios.post(`${THEME.API_URL}/users/`, data);
+      // if (!!res) {
+      // console.log("res", JSON.stringify(res));
+      navigation.navigate(Screens.Quiz);
+      // }
+      // setModal(false);
+
+      // dispatch(toggle({ text: "Аккаунт создан. Проверьте почту", type: "success" }));
+    } catch (e) {
+      // dispatch(toggle({ text: e.response?.data?.message ?? e.message, type: "error" }));
+      console.log(e);
+    }
   };
 
-  useEffect(() => {
-    navigation.setOptions({
-      headerLeft: () =>
-        navigation.canGoBack() ? (
-          <TouchableOpacity
-            onPress={() => {
-              navigation.goBack();
-            }}>
-            <Image source={require("../../assets/backIcon.png")} style={{ width: 24, height: 24 }} />
-          </TouchableOpacity>
-        ) : null,
-    });
-  }, []);
+  useBackButton();
 
   // const dispatch = useAppDispatch();
-  // const signUpHandler = async (values) => {
-  //   try {
-  //     const res = await axios.post(`${THEME.API_URL}/users/`, { ...values });
-
-  //     // setModal(false);
-  //     setEmail("");
-  //     setPassword("");
-  //     setPasswordRepeat("");
-  //     navigation.navigate("SignInByEmail");
-  //     dispatch(toggle({ text: "Аккаунт создан. Проверьте почту", type: "success" }));
-  //   } catch (e) {
-  //     dispatch(toggle({ text: e.response?.data?.message ?? e.message, type: "error" }));
-  //     // console.log(e);
-  //   }
-  // };
 
   const ref_input2 = useRef<TextInput>(null);
   const ref_input3 = useRef<TextInput>(null);
@@ -136,6 +107,7 @@ export default function SignUp() {
                 returnKeyType='next'
                 onSubmitEditing={() => ref_input2.current.focus()}
                 error={!!errors.name}
+                autoCapitalize='words'
               />
             )}
             name='name'
@@ -163,6 +135,7 @@ export default function SignUp() {
                 onSubmitEditing={() => ref_input3.current.focus()}
                 ref={ref_input2}
                 error={!!errors.email}
+                keyboardType='email-address'
               />
             )}
             name='email'
@@ -273,17 +246,12 @@ export default function SignUp() {
           <ButtonSecondary
             text='Войти'
             onPress={() => {
-              navigation.navigate("SignIn");
+              navigation.navigate(Screens.SignIn);
             }}
             style={{ width: "auto" }}
             textStyle={{ color: THEME.MAIN_RED, lineHeight: 15, fontFamily: THEME.FONTS.SFProText500 }}
           />
         </View>
-        <SignUpBtn
-          onPress={() => {
-            dispatch(countVisit({ hasVisited: false }));
-          }}
-        />
       </View>
     </TouchableWithoutFeedback>
   );

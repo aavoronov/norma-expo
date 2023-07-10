@@ -17,7 +17,7 @@ export const THEME = {
   },
 
   // NAVBAR_TITLE_LINE_LENGTH: 30,
-  // API_URL: "http://192.168.1.68:5000/api/v1",
+  API_URL: "http://192.168.1.68:5000/api/v1",
   // WS_ADDRESS: "http://192.168.1.68:5000/",
   // TP_PAGE_LIMIT: 18,
   // SERVICES_PAGE_LIMIT: 10,

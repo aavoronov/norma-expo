@@ -1,0 +1,51 @@
+import { View, Text, TouchableOpacity } from "react-native";
+import useBackButton from "../hooks/useBackButton";
+import { styled } from "styled-components/native";
+import { Title } from "../utilities";
+import { useAppDispatch, useAppNavigation, useAppSelector } from "../hooks";
+import { THEME } from "../theme";
+import ButtonPrimary from "../components/ButtonPrimary";
+import { resetUser } from "../store/userSlice";
+import { Screens } from "../Screens";
+
+const Container = styled.View`
+  height: 100%;
+  width: 100%;
+  justify-content: space-between;
+  padding: 80px 0;
+`;
+
+const ManageProfile = () => {
+  useBackButton();
+  const { name: userName, email } = useAppSelector((state) => state.user);
+  const dispatch = useAppDispatch();
+  const navigation = useAppNavigation();
+
+  return (
+    <Container>
+      <View>
+        <Title style={{ textAlign: "left", fontSize: 24, marginBottom: 36 }}>Настройки аккаунта</Title>
+        <View style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: 36 }}>
+          <View>
+            <Title style={{ textAlign: "left", marginBottom: 8 }}>{userName}</Title>
+            <Text>Ваше имя</Text>
+          </View>
+          <TouchableOpacity style={{ marginTop: 3 }} onPress={() => navigation.navigate(Screens.EditName)}>
+            <Text style={{ fontSize: 14, fontFamily: THEME.FONTS.SFProText400, color: THEME.MAIN_RED }}>Изменить</Text>
+          </TouchableOpacity>
+        </View>
+        <View>
+          <Title style={{ textAlign: "left", marginBottom: 8 }}>{email}</Title>
+          <Text>Электронная почта</Text>
+        </View>
+      </View>
+      <View>
+        <ButtonPrimary text='Выйти' onPress={() => navigation.navigate(Screens.Logout)} style={{ marginBottom: 32 }} />
+        <TouchableOpacity style={{ alignItems: "center" }} onPress={() => navigation.navigate(Screens.DeleteAccount)}>
+          <Text style={{ fontFamily: THEME.FONTS.SFProText600, fontSize: 16, color: THEME.BLACKISH_2D2D31 }}>Удалить аккаунт</Text>
+        </TouchableOpacity>
+      </View>
+    </Container>
+  );
+};
+export default ManageProfile;

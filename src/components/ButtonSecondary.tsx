@@ -13,7 +13,6 @@ const BtnText = styled.Text`
   color: #000;
   text-align: center;
   font-size: 14px;
-  font-weight: 700;
   font-family: ${THEME.FONTS.SFProText700};
 `;
 

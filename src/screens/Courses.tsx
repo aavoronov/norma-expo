@@ -1,31 +1,22 @@
 import { Text, ScrollView, View, Image, TouchableOpacity } from "react-native";
 import { styled } from "styled-components/native";
-import { RegularText, Title } from "../utilities";
+import { RegularText, SetState, Title, valueOf, videoLength } from "../utilities";
 import { THEME } from "../theme";
 import { useState } from "react";
-
-const Container = styled.ScrollView`
-  /* margin: 60px 0; */
-  width: 100%;
-  flex: 1;
-`;
+import { useAppNavigation, useAppSelector } from "../hooks";
+import { coursesData } from "../components/data";
+import { Screens } from "../Screens";
+import { CoursePreview } from "../components/svgs";
 
 type ActivityTypes = "fitness" | "restaurants" | "tourism";
 
-const humanFriendlyFilterState = {
-  0: { key: "fitness", humanFriendly: "Фитнес" },
-  1: { key: "restaurants", humanFriendly: "Рестораны" },
-  2: { key: "tourism", humanFriendly: "Туризм" },
-} as const;
+const humanFriendlyFilterState = [
+  { key: "fitness", humanFriendly: "Фитнес" },
+  { key: "restaurants", humanFriendly: "Рестораны" },
+  { key: "tourism", humanFriendly: "Туризм" },
+] as const;
 
-type ValueOf<T> = T[keyof T];
-
-type HumanFriendlyFilterState = ValueOf<typeof humanFriendlyFilterState>;
-
-// type HumanFriendlyFilterState =
-//   | { key: "fitness"; humanFriendly: "Фитнес" }
-//   | { key: "restaurants"; humanFriendly: "Рестораны" }
-//   | { key: "tourism"; humanFriendly: "Туризм" };
+type HumanFriendlyFilterState = (typeof humanFriendlyFilterState)[number];
 
 interface VideoLesson {
   title: string;
@@ -48,82 +39,39 @@ interface Category {
   courses: Array<VideoLesson | Course>;
 }
 
-const data: Category[] = [
-  {
-    category: "Бесплатные материалы",
-    courses: [
-      { title: "С чего начать обучение", type: "video", duration: 2715, activity: "fitness" },
-      { title: "С чего начать обучение", type: "video", duration: 2715, activity: "restaurants" },
-      { title: "С чего начать обучение", type: "video", duration: 2715, activity: "fitness" },
-      { title: "С чего начать обучение", type: "video", duration: 2715, activity: "fitness" },
-      { title: "С чего начать обучение", type: "video", duration: 2715, activity: "fitness" },
-    ],
-  },
-  {
-    category: "Онлайн-конференции",
-    courses: [
-      {
-        title: "Как увеличить прибыль в два раза за три месяца и что-то там еще, заголовок будет сокращен",
-        type: "video",
-        duration: 2715,
-        activity: "fitness",
-      },
-      { title: "Как продвигаться в соцсетях", type: "video", duration: 2715, activity: "restaurants" },
-      { title: "С чего начать обучение", type: "video", duration: 2715, activity: "fitness" },
-      { title: "С чего начать обучение", type: "video", duration: 2715, activity: "fitness" },
-      { title: "С чего начать обучение", type: "video", duration: 2715, activity: "fitness" },
-    ],
-  },
-  {
-    category: "Для руководителей",
-    courses: [
-      { title: "Как открыть фитнес-клуб с нуля", type: "course", lessons: 10, activity: "fitness" },
-      { title: "Как подбирать персонал с помощью чего-то там длинного", type: "course", lessons: 10, activity: "fitness" },
-      { title: "С чего начать обучение", type: "video", duration: 2715, activity: "fitness" },
-      { title: "С чего начать обучение", type: "video", duration: 2715, activity: "restaurants" },
-      { title: "С чего начать обучение", type: "video", duration: 2715, activity: "fitness" },
-    ],
-  },
-  {
-    category: "Для собственников",
-    courses: [
-      { title: "Прокачиваем soft-skills", type: "video", duration: 2715, activity: "fitness" },
-      { title: "Тактика продаж", type: "video", duration: 2715, activity: "fitness" },
-      { title: "С чего начать обучение", type: "video", duration: 2715, activity: "tourism" },
-      { title: "С чего начать обучение", type: "video", duration: 2715, activity: "tourism" },
-      { title: "С чего начать обучение", type: "video", duration: 2715, activity: "fitness" },
-    ],
-  },
-  {
-    category: "Для специалистов",
-    courses: [
-      { title: "Прокачиваем soft-skills", type: "video", duration: 2715, activity: "fitness" },
-      { title: "Тактика продаж", type: "video", duration: 2715, activity: "tourism" },
-      { title: "С чего начать обучение", type: "video", duration: 2715, activity: "fitness" },
-      { title: "С чего начать обучение", type: "video", duration: 2715, activity: "fitness" },
-      { title: "С чего начать обучение", type: "video", duration: 2715, activity: "fitness" },
-    ],
-  },
-  {
-    category: "Для спикеров",
-    courses: [
-      { title: "Прокачиваем soft-skills", type: "video", duration: 2715, activity: "fitness" },
-      { title: "Тактика продаж", type: "video", duration: 2715, activity: "fitness" },
-      { title: "С чего начать обучение", type: "video", duration: 2715, activity: "fitness" },
-      { title: "С чего начать обучение", type: "video", duration: 2715, activity: "fitness" },
-      { title: "С чего начать обучение", type: "video", duration: 2715, activity: "fitness" },
-    ],
-  },
-];
+const Container = styled.ScrollView`
+  width: 100%;
+  flex: 1;
+`;
 
-const Course = ({ course }: { course: VideoLesson | Course }) => {
+const CourseThumb = ({ course }: { course: VideoLesson | Course }) => {
   const { duration } = course as VideoLesson;
   const { lessons } = course as Course;
   const { title, type } = course;
 
-  const timelapse = !!duration ? `${Math.floor(duration / 60)}:${duration % 60}` : `${lessons} уроков`;
+  const navigation = useAppNavigation();
+
+  const isSingleLessonRatherThanCourse = !!duration && !lessons;
+
+  const lessonsLength = (value: number) => {
+    let suffix = "";
+    if (value % 10 > 1 && value % 10 < 5) suffix = "а";
+    if (value % 10 >= 5 || value % 10 === 0 || (value > 10 && value < 15)) suffix = "ов";
+    return `${value} урок${suffix}`;
+  };
+
+  const maybeShortenTitle = (str: string) => {
+    if (str.length > 50) return str.slice(0, 50) + "...";
+    return str;
+  };
+
+  const timelapse = isSingleLessonRatherThanCourse ? videoLength(duration) : lessonsLength(lessons);
   return (
-    <TouchableOpacity style={{ width: 150, marginRight: 16 }}>
+    <TouchableOpacity
+      style={{ width: 150, marginRight: 16 }}
+      onPress={() =>
+        navigation.navigate(isSingleLessonRatherThanCourse ? { name: Screens.Lesson, params: {} } : { name: Screens.Course, params: {} })
+      }>
       <View
         style={{
           backgroundColor: THEME.WHITISH_F2F3F8,
@@ -131,13 +79,18 @@ const Course = ({ course }: { course: VideoLesson | Course }) => {
           alignItems: "flex-end",
           justifyContent: "space-between",
           flexDirection: "row",
+          paddingTop: 13,
+          paddingLeft: 21,
           padding: 8,
           marginBottom: 12,
         }}>
-        <Image source={require("../../assets/coursePreview.png")} />
+        {/* <Image source={require("../../assets/coursePreview.png")} style={{ marginBottom: 5 }} /> */}
+        <View style={{ marginBottom: 5 }}>
+          <CoursePreview />
+        </View>
         <Text style={{ fontFamily: THEME.FONTS.SFProText500, fontSize: 9 }}>{timelapse}</Text>
       </View>
-      <Text style={{ fontFamily: THEME.FONTS.SFProText500, fontSize: 12, color: THEME.BLACKISH_2D2D31 }}>{title}</Text>
+      <Text style={{ fontFamily: THEME.FONTS.SFProText500, fontSize: 12, color: THEME.BLACKISH_2D2D31 }}>{maybeShortenTitle(title)}</Text>
     </TouchableOpacity>
   );
 };
@@ -151,17 +104,17 @@ const SingleCategory = ({ singleCategory, filter }: { singleCategory: Category; 
       <Title style={{ fontSize: 20, textAlign: "left", marginBottom: 16 }}>{category}</Title>
       <ScrollView horizontal style={{ paddingBottom: 5 }}>
         {eligibleCourses.map((item: VideoLesson | Course, index: number) => {
-          return <Course course={item} key={index} />;
+          return <CourseThumb course={item} key={index} />;
         })}
       </ScrollView>
     </View>
   );
 };
 
-const Filter = ({ filter, setFilter }: { filter: HumanFriendlyFilterState; setFilter: (value: HumanFriendlyFilterState) => void }) => {
+const Filter = ({ filter, setFilter }: { filter: HumanFriendlyFilterState; setFilter: SetState<HumanFriendlyFilterState> }) => {
   return (
     <View style={{ flexDirection: "row", marginBottom: 32 }}>
-      {Object.values(humanFriendlyFilterState).map((item) => {
+      {humanFriendlyFilterState.map((item) => {
         const isSelected = filter === item;
         return (
           <TouchableOpacity
@@ -184,12 +137,14 @@ const Filter = ({ filter, setFilter }: { filter: HumanFriendlyFilterState; setFi
 
 const Courses = () => {
   const [filter, setFilter] = useState<HumanFriendlyFilterState>(humanFriendlyFilterState[0]);
+  const userName = useAppSelector((state) => state.user.name);
+
   return (
     <Container>
-      <Title style={{ textAlign: "left", marginTop: 50, marginBottom: 12 }}>Здравствуйте, Юлия!</Title>
+      <Title style={{ textAlign: "left", marginTop: 50, marginBottom: 12 }}>{`Здравствуйте, ${userName}!`}</Title>
       <RegularText style={{ marginBottom: 32 }}>Давайте приступим к обучению</RegularText>
       <Filter filter={filter} setFilter={setFilter} />
-      {data.map((item: Category, index: number) => {
+      {coursesData.map((item: Category, index: number) => {
         return <SingleCategory singleCategory={item} key={index} filter={filter} />;
       })}
     </Container>

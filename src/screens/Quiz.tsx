@@ -6,6 +6,7 @@ import ButtonPrimary from "../components/ButtonPrimary";
 import { useAppDispatch, useAppNavigation } from "../hooks";
 import { THEME } from "../theme";
 import { RegularText, Title } from "../utilities";
+import { Screens } from "../Screens";
 
 const Container = styled.View`
   justify-content: space-between;
@@ -19,23 +20,23 @@ const Subtitle = styled(RegularText)`
   margin-bottom: 32px;
 `;
 
-const content = {
-  0: {
+const content = [
+  {
     title: "Ваша сфера деятельности",
     subtitle: "Выберите область, которая вам интересна (можно выбрать несколько сфер)",
     options: ["Фитнес", "Ресторанный бизнес", "Туризм", "Пока не знаю"],
   },
-  1: {
+  {
     title: "Ваша позиция",
     subtitle: "Выберите вашу роль в бизнесе",
     options: ["Рядовой сотрудник", "Руководитель", "Собственник бизнеса", "Спикер"],
   },
-  2: {
+  {
     title: "Ваши ожидания от обучения",
     subtitle: "Укажите ваши цели (можно выбрать несколько)",
     options: ["Повысить уровень компетенций", "Получить повышение", "Увеличить прибыль", "Открыть свое дело", "Масштабировать бизнес"],
   },
-};
+];
 
 interface ChoiceProps {
   screen: number;
@@ -77,11 +78,10 @@ const Quiz = (): JSX.Element => {
 
   const handleForwardPress = () => {
     if (screen === 2) {
-      // navigation.navigate("CreateAccount");
       console.log("occupation", occupation);
       console.log("position", position);
       console.log("anticipations", anticipations);
-      navigation.navigate("Personalization");
+      navigation.navigate(Screens.Personalization);
     } else {
       setScreen((prev) => prev + 1);
     }

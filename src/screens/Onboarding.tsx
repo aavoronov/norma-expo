@@ -7,19 +7,16 @@ import ButtonSecondary from "../components/ButtonSecondary";
 import { useAppDispatch, useAppNavigation } from "../hooks";
 import { countVisit } from "../store/visitSlice";
 import { THEME } from "../theme";
-import { RegularText } from "../utilities";
+import { RegularText, Title } from "../utilities";
+import { Screens } from "../Screens";
 
-const subtitles = {
-  0: "Изучите самые актуальные сферы: фитнес, ресторанный бизнес, туризм",
-  1: "Получите опыт от лучших менеджеров и спикеров России и стран СНГ",
-  2: "Станьте лидером рынка в своей отрасли",
-};
+const subtitles = [
+  "Изучите самые актуальные сферы: фитнес, ресторанный бизнес, туризм",
+  "Получите опыт от лучших менеджеров и спикеров России и стран СНГ",
+  "Станьте лидером рынка в своей отрасли",
+];
 
-const images = {
-  0: require("../../assets/onboarding0.png"),
-  1: require("../../assets/onboarding1.png"),
-  2: require("../../assets/onboarding2.png"),
-};
+const images = [require("../../assets/onboarding0.png"), require("../../assets/onboarding1.png"), require("../../assets/onboarding2.png")];
 
 const Onboarding = (): JSX.Element => {
   const [screen, setScreen] = useState(0);
@@ -28,14 +25,13 @@ const Onboarding = (): JSX.Element => {
 
   const handleForwardPress = () => {
     if (screen === 2) {
-      navigation.navigate("CreateAccount");
+      navigation.navigate(Screens.CreateAccount);
     } else {
       setScreen((prev) => prev + 1);
     }
   };
 
   const handleSkipPress = async () => {
-    // navigation.navigate("SignUp");
     dispatch(countVisit({ hasVisited: true }));
     await AsyncStorage.setItem("hasVisited", "1");
   };
@@ -43,7 +39,7 @@ const Onboarding = (): JSX.Element => {
   return (
     <>
       <Image source={images[screen]} style={[{ maxWidth: "100%", resizeMode: "contain" }]} />
-      <RegularText style={{ textAlign: "center", fontSize: 18, width: "80%", marginTop: 62 }}>{subtitles[screen]}</RegularText>
+      <Title style={{ textAlign: "center", fontSize: 18, width: "80%", marginTop: 62 }}>{subtitles[screen]}</Title>
       <ButtonPrimary text='Далее' onPress={handleForwardPress} style={{ marginTop: 36, marginBottom: 24 }} />
       <ButtonSecondary text='Пропустить' onPress={handleSkipPress} style={{ color: THEME.BLACKISH_2D2D31 }} />
     </>

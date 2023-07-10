@@ -8,6 +8,9 @@ import TextField from "../components/TextField";
 import { useAppDispatch, useAppNavigation } from "../hooks";
 import { updateRole } from "../store/userSlice";
 import { THEME } from "../theme";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import useBackButton from "../hooks/useBackButton";
+import { Screens } from "../Screens";
 
 const FormHeader = styled.Text`
   font-size: 22px;
@@ -42,28 +45,19 @@ export default function SignIn() {
     setError,
     clearErrors,
     getValues,
+    watch,
     formState: { isDirty, errors },
-  } = useForm({ defaultValues, mode: "onChange", criteriaMode: "all" });
+  } = useForm({ defaultValues, mode: "onChange" });
+  const watchAllFields = watch();
 
-  const onSubmit = (data: typeof defaultValues) => {
+  const onSubmit = async (data: typeof defaultValues) => {
     console.log("data", JSON.stringify(data));
     // navigation.navigate("Quiz");
     dispatch(updateRole({ role: "user" }));
+    await AsyncStorage.setItem("role", "user");
   };
 
-  useEffect(() => {
-    navigation.setOptions({
-      headerLeft: () =>
-        navigation.canGoBack() ? (
-          <TouchableOpacity
-            onPress={() => {
-              navigation.goBack();
-            }}>
-            <Image source={require("../../assets/backIcon.png")} style={{ width: 24, height: 24 }} />
-          </TouchableOpacity>
-        ) : null,
-    });
-  }, []);
+  useBackButton();
 
   // const dispatch = useAppDispatch();
   // const signUpHandler = async (values) => {
@@ -110,6 +104,7 @@ export default function SignIn() {
                   returnKeyType='next'
                   onSubmitEditing={() => ref_input2.current.focus()}
                   error={!!errors.email}
+                  keyboardType='email-address'
                 />
               )}
               name='email'
@@ -164,10 +159,7 @@ export default function SignIn() {
             <ButtonSecondary
               text='Восстановить'
               onPress={() => {
-                // console.log("first", getValues("email"));
-                // console.log('getValues("password")', getValues("password"));
-                // console.log("!!Object.keys(errors).length", Object.keys(errors).length);
-                navigation.navigate("PasswordReset");
+                navigation.navigate(Screens.PasswordReset);
               }}
               style={{ width: "auto" }}
               textStyle={{ color: THEME.MAIN_RED, lineHeight: 15, fontFamily: THEME.FONTS.SFProText500 }}
@@ -177,7 +169,7 @@ export default function SignIn() {
         <ButtonSecondary
           text='У меня нет аккаунта'
           onPress={() => {
-            navigation.navigate("SignUp");
+            navigation.navigate(Screens.SignUp);
           }}
           style={{ width: "auto" }}
           textStyle={{ color: THEME.MAIN_RED, lineHeight: 15, fontFamily: THEME.FONTS.SFProText500 }}

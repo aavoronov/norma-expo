@@ -15,6 +15,21 @@ const ImgWrap = styled.TouchableOpacity`
   right: 16px;
 `;
 
+type KeyboardTypes =
+  | "default"
+  | "numeric"
+  | "email-address"
+  | "ascii-capable"
+  | "numbers-and-punctuation"
+  | "url"
+  | "number-pad"
+  | "phone-pad"
+  | "name-phone-pad"
+  | "decimal-pad"
+  | "twitter"
+  | "web-search"
+  | "visible-password";
+
 interface Props {
   value: string;
   setValue: (value: string) => void;
@@ -37,9 +52,10 @@ interface Props {
   limitStyle?: any;
   disabled?: boolean;
   error?: boolean;
-
+  autoCapitalize?: "none" | "sentences" | "words" | "characters";
   onBlur?: any;
   onChangeText?: any;
+  keyboardType?: KeyboardTypes;
 }
 
 const TextField = forwardRef((props: Props, ref: Ref<TextInput>) => {
@@ -51,6 +67,7 @@ const TextField = forwardRef((props: Props, ref: Ref<TextInput>) => {
   const onSubmitEditing = props.onSubmitEditing;
   const style = props.style;
   const autoCorrect = props.autoCorrect ?? false;
+  const autoCapitalize = props.autoCapitalize ?? "none";
   const blurOnSubmit = props.blurOnSubmit ?? false;
   const withEye = props.withEye ?? false;
   const secure = props.secure ?? false;
@@ -64,6 +81,7 @@ const TextField = forwardRef((props: Props, ref: Ref<TextInput>) => {
   const limitStyle = props.limitStyle;
   const disabled = props.disabled ?? false;
   const error = props.error || false;
+  const keyboardType = props.keyboardType || "default";
 
   const headerHeight = useHeaderHeight();
 
@@ -96,9 +114,11 @@ const TextField = forwardRef((props: Props, ref: Ref<TextInput>) => {
         ]}
         // autoComplete='tel'
         // keyboardType='phone-pad'
+        keyboardType={keyboardType}
         textAlign={textAlign}
         blurOnSubmit={blurOnSubmit}
         autoCorrect={autoCorrect}
+        autoCapitalize={autoCapitalize}
         secureTextEntry={secure}
         onSubmitEditing={onSubmitEditing}
         returnKeyType={returnKeyType}

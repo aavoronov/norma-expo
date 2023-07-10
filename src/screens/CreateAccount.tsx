@@ -27,7 +27,6 @@ const CreateAccount = (): JSX.Element => {
         onPress={async () => {
           dispatch(countVisit({ hasVisited: true }));
           await AsyncStorage.setItem("hasVisited", "1");
-          // navigation.navigate("SignUp");
         }}
         style={{ marginBottom: 39 }}
       />
@@ -48,7 +47,6 @@ const CreateAccount = (): JSX.Element => {
           onPress={async () => {
             dispatch(countVisit({ hasVisited: true }));
             await AsyncStorage.setItem("hasVisited", "1");
-            // navigation.navigate("SignUp");
           }}
           style={{ width: "auto" }}
           textStyle={{ color: THEME.MAIN_RED, lineHeight: 15, fontFamily: THEME.FONTS.SFProText500 }}

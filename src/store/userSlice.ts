@@ -1,40 +1,39 @@
 import { createSlice } from "@reduxjs/toolkit";
 
+interface UserState {
+  email: string;
+  role: string;
+  name: string;
+  subscriptionThrough: string;
+  subscriptionCancelled: boolean;
+  emailConfirmed: boolean;
+}
+
+const initialState: UserState = {
+  email: "rybakova-7@mail.ru",
+  role: "",
+  name: "Юлия",
+  subscriptionThrough: "",
+  subscriptionCancelled: false,
+  emailConfirmed: false,
+};
+
 const userSlice = createSlice({
   name: "user",
-  initialState: {
-    email: "",
-    phone: "",
-    role: "",
-    pseudonym: "",
-    color: "",
-    profilePic: "",
-    notifications: 0,
-    balance: 0,
-  },
+  initialState,
   reducers: {
     updateRole(state, action) {
       state.role = action.payload.role;
     },
-    updateProfile(state, action) {
-      state.pseudonym = action.payload.pseudonym;
-      state.color = action.payload.color;
-      state.profilePic = action.payload.profilePic;
+
+    updateProfile(state, action: { type: string; payload: Partial<UserState> }) {
+      console.log("state", state);
+      console.log("action", action);
+      return { ...state, ...action.payload };
     },
-    updateEmail(state, action) {
-      state.email = action.payload.email;
-    },
-    updatePhone(state, action) {
-      state.phone = action.payload.phone;
-    },
-    updateNotifications(state, action) {
-      state.notifications = action.payload.notifications;
-    },
-    updateBalance(state, action) {
-      state.balance = action.payload.balance;
-    },
+    resetUser: () => initialState,
   },
 });
 
-export const { updateRole, updateProfile, updateEmail, updateNotifications, updatePhone, updateBalance } = userSlice.actions;
+export const { updateRole, updateProfile, resetUser } = userSlice.actions;
 export default userSlice.reducer;

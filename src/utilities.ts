@@ -1,9 +1,8 @@
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { Image } from "react-native";
 import { styled } from "styled-components/native";
 import { THEME } from "./theme";
-
-const HeaderBackImage = () => <Image source={require("../assets/backIcon.png")} style={{ width: 24, height: 24 }}></Image>;
+import { ParamListBase } from "@react-navigation/native";
+import { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import { Linking } from "react-native";
 
 export class ValidationError extends Error {
   options: { type: string; message: string };
@@ -48,7 +47,6 @@ export const SignUpFormValidate = (
   }
   try {
     const { name, email, password, passwordRepeat } = data;
-    console.log("name", name);
 
     if (!name) throw new ValidationError({ name: "name", message: "Вы не указали имя" });
     if (!email) throw new ValidationError({ name: "email", message: "Вы не указали почту" });
@@ -65,8 +63,6 @@ export const SignUpFormValidate = (
       throw new ValidationError({ name: "password", message: `Пароль должен содержать минимум ${length} символов` });
     if (!(passwordRepeat.length >= length))
       throw new ValidationError({ name: "passwordRepeat", message: `Пароль должен содержать минимум ${length} символов` });
-
-    console.log("success", JSON.stringify(data));
 
     // setModal(true);
   } catch (e) {
@@ -91,3 +87,77 @@ export const RegularText = styled.Text`
   font-size: 14px;
   text-align: left;
 `;
+
+export type SetState<T> = (value: T | ((value: T) => T)) => void;
+export type valueOf<T> = T[keyof T];
+export type Equals<X, Y> = (<T>() => T extends X ? 1 : 2) extends <T>() => T extends Y ? 1 : 2 ? true : false;
+export type Not<T extends boolean> = T extends true ? false : true;
+
+export const videoLength = (value: number) => {
+  const isLongerThanAnHour = value >= 3600;
+  const date = new Date(null);
+  date.setSeconds(value); // specify value for SECONDS here
+  return isLongerThanAnHour ? date.toISOString().slice(11, 19) : date.toISOString().slice(14, 19);
+};
+
+export const sumToLocale = (number: number) => {
+  let res = new Intl.NumberFormat("ru-RU").format(number);
+  return res;
+};
+
+export type NavigationProp = NativeStackNavigationProp<ParamListBase>;
+
+export const notImplemented = () => {
+  throw new Error("Not implemented. Please report");
+};
+
+export const mailto = (email: string) => {
+  const link = `mailto:${email}`;
+
+  Linking.canOpenURL(link)
+    .then((supported) => {
+      if (!supported) {
+        console.log("Phone number is not available");
+      } else {
+        return Linking.openURL(link);
+      }
+    })
+    .catch((err) => console.log(err));
+};
+
+export const getSubscriptionExpiryDate = (dateString: string) => {
+  if (!dateString) return;
+
+  const date = new Date(Date.parse(dateString));
+
+  return (
+    date.getDate().toString().padStart(2, "0") +
+    "." +
+    (date.getMonth() + 1).toString().padStart(2, "0") +
+    "." +
+    date.getFullYear().toString()
+  );
+};
+
+export const subscriptionText = (subscriptionThrough: string) => {
+  let text = "Оформите подписку и получите доступ ко всем урокам";
+
+  if (!!subscriptionThrough) {
+    const expirationDateText = getSubscriptionExpiryDate(subscriptionThrough);
+    const today = new Date();
+    const expirationDate = new Date(Date.parse(subscriptionThrough));
+    if (expirationDate > today) {
+      text = `Срок действия истекает ${expirationDateText}`;
+    } else text = `Срок действия истек ${expirationDateText}`;
+  }
+  return text;
+};
+
+export const checkSubscriptionValidity = (subscriptionThrough: string) => {
+  if (!subscriptionThrough) return false;
+
+  const today = new Date();
+  const expirationDate = new Date(Date.parse(subscriptionThrough));
+  if (expirationDate > today) return true;
+  else return false;
+};
