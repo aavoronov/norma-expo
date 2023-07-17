@@ -10,9 +10,9 @@ interface UserState {
 }
 
 const initialState: UserState = {
-  email: "rybakova-7@mail.ru",
+  email: "",
   role: "",
-  name: "Юлия",
+  name: "",
   subscriptionThrough: "",
   subscriptionCancelled: false,
   emailConfirmed: false,

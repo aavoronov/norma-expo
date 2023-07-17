@@ -1,18 +1,14 @@
-import { Text, TouchableOpacity, View } from "react-native";
-import { RegularText, Title, videoLength } from "../utilities";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useAppDispatch, useAppNavigation } from "../hooks";
-import { updateRole } from "../store/userSlice";
-import { useEffect } from "react";
-import { Image } from "react-native";
+import { Image, Text, TouchableOpacity, View } from "react-native";
 import { styled } from "styled-components/native";
+import { Screens } from "../Screens";
 import BackButton from "../components/BackButton";
 import Files from "../components/Files";
-import { THEME } from "../theme";
-import { CoursePreview, Lock, LockSmall } from "../components/svgs";
 import { courseContent } from "../components/data";
-import usePaidAction from "../hooks/usePaidAction";
-import { Screens } from "../Screens";
+import { CoursePreview, LockSmall } from "../components/svgs";
+import { useAppDispatch, useAppNavigation, useAppSelector } from "../hooks";
+import { THEME } from "../theme";
+import { RegularText, Title, axiosQuery, checkSubscriptionValidity, videoLength } from "../utilities";
+import { useEffect } from "react";
 
 const Container = styled.ScrollView`
   width: 100%;
@@ -58,6 +54,9 @@ const files: SingleLessonFiles[] = courseContent.lessons
 const LessonThumb = ({ lesson }: { lesson: Lesson }) => {
   const { id, order, isPaid, title, duration } = lesson;
   const navigation = useAppNavigation();
+  const subscriptionThrough = useAppSelector((state) => state.user.subscriptionThrough);
+  const hasAccess = checkSubscriptionValidity(subscriptionThrough) || !isPaid;
+  const noAccess = !hasAccess;
   // const checkForPaidAction = usePaidAction();
 
   // const handlePress = () => {
@@ -77,17 +76,17 @@ const LessonThumb = ({ lesson }: { lesson: Lesson }) => {
             width: 150,
             height: 84,
             borderRadius: 12,
-            alignItems: isPaid ? "center" : "flex-end",
-            justifyContent: isPaid ? "center" : "space-between",
+            alignItems: noAccess ? "center" : "flex-end",
+            justifyContent: noAccess ? "center" : "space-between",
             flexDirection: "row",
             paddingTop: 13,
             paddingLeft: 21,
             padding: 8,
             marginRight: 12,
           },
-          isPaid && { paddingTop: 0, paddingLeft: 0, padding: 0 },
+          noAccess && { paddingTop: 0, paddingLeft: 0, padding: 0 },
         ]}>
-        {isPaid ? (
+        {noAccess ? (
           <LockSmall />
         ) : (
           <>
@@ -107,9 +106,24 @@ const LessonThumb = ({ lesson }: { lesson: Lesson }) => {
   );
 };
 
-const Course = () => {
+const Course = ({ route }) => {
   const dispatch = useAppDispatch();
   const navigation = useAppNavigation();
+  const data = route.params;
+  console.log("data", data);
+
+  useEffect(() => {
+    (async () => {
+      if (!!route.params.id) {
+        try {
+          const res = await axiosQuery({ url: `/courses/${route.params.id}` });
+          console.log("res.data", res.data);
+        } catch (e) {
+          console.log(e.response.data.message);
+        }
+      }
+    })();
+  }, [route]);
 
   return (
     <Container>

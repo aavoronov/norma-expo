@@ -1,8 +1,10 @@
-import { styled } from "styled-components/native";
-import { THEME } from "./theme";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { ParamListBase } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import axios from "axios";
 import { Linking } from "react-native";
+import { styled } from "styled-components/native";
+import { THEME } from "./theme";
 
 export class ValidationError extends Error {
   options: { type: string; message: string };
@@ -160,4 +162,68 @@ export const checkSubscriptionValidity = (subscriptionThrough: string) => {
   const expirationDate = new Date(Date.parse(subscriptionThrough));
   if (expirationDate > today) return true;
   else return false;
+};
+
+type HttpMethod = "get" | "post" | "put" | "patch" | "delete";
+
+interface AxiosConfigProps {
+  url: string;
+  payload?: {};
+  noAuth?: boolean;
+  method?: HttpMethod;
+}
+
+interface AxiosConfigInstanceParams {
+  url: string;
+  payload?: {};
+  authorization?: string;
+  method?: HttpMethod;
+}
+
+export const axiosConfig = async ({ url, payload, noAuth, method }: AxiosConfigProps) => {
+  return {
+    url: `${THEME.API_URL}${url}`,
+    data: payload,
+    method: method || "get",
+    headers: {
+      Authorization: !noAuth ? await AsyncStorage.getItem("norma-token") : void 0,
+      "Content-Type": payload instanceof FormData ? "multipart/form-data" : "application/json",
+    },
+  };
+};
+
+export class AxiosConfig {
+  static async createAsync({ method = "get", url, noAuth = false, payload }: AxiosConfigProps) {
+    const authorization = !noAuth ? await AsyncStorage.getItem("norma-token") : void 0;
+    console.log("instance", new AxiosConfig({ url, payload, authorization, method }));
+    return new AxiosConfig({ url, payload, authorization, method });
+  }
+
+  constructor({ url, payload, authorization, method }: AxiosConfigInstanceParams) {
+    this.url = `${THEME.API_URL}${url}`;
+    this.data = payload;
+    this.method = method;
+    this.headers = {
+      Authorization: authorization,
+      ["Content-Type"]: payload instanceof FormData ? "multipart/form-data" : "application/json",
+    };
+  }
+
+  method: HttpMethod = "get";
+  url: string;
+  data?: {};
+  headers: {
+    Authorization?: string;
+    "Content-Type": string;
+  };
+}
+
+export const axiosQuery = async ({ method, url, noAuth, payload }: AxiosConfigProps) => {
+  try {
+    // const res = await axios(await AxiosConfig.createAsync({ method, url, noAuth, payload }));
+    const res = await axios(await axiosConfig({ method, url, noAuth, payload }));
+    return res;
+  } catch (e) {
+    console.log("e", e.response.data.message);
+  }
 };

@@ -1,12 +1,13 @@
-import ButtonPrimary from "../components/ButtonPrimary";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { View } from "react-native";
+import { styled } from "styled-components/native";
+import ButtonPrimary from "../components/ButtonPrimary";
+import { courseContent } from "../components/data";
 import { useAppDispatch } from "../hooks";
+import useBackButton from "../hooks/useBackButton";
+import { resetFaves, setFaves } from "../store/favesSlice";
 import { resetUser, updateProfile } from "../store/userSlice";
 import { countVisit } from "../store/visitSlice";
-import { styled } from "styled-components/native";
-import { resetFaves, setFaves } from "../store/favesSlice";
-import { courseContent } from "../components/data";
-import useBackButton from "../hooks/useBackButton";
 
 const ButtonPrimaryWMargin = styled(ButtonPrimary)`
   margin-bottom: 20px;
@@ -23,7 +24,13 @@ const TestFunctionalityTemp = () => {
         text='Просрочить подписку'
         onPress={() => dispatch(updateProfile({ subscriptionThrough: expiredDate.toISOString() }))}
       />
-      <ButtonPrimaryWMargin text='Выйти' onPress={() => dispatch(resetUser())} />
+      <ButtonPrimaryWMargin
+        text='Выйти'
+        onPress={async () => {
+          dispatch(resetUser());
+          await AsyncStorage.removeItem("norma-token");
+        }}
+      />
       <ButtonPrimaryWMargin
         text='Выйти и сбросить посещение'
         onPress={() => {

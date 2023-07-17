@@ -1,16 +1,16 @@
-import { useRef, useState, useEffect, forwardRef, MutableRefObject } from "react";
-import { Button, Dimensions, Image, Text, TouchableOpacity, View } from "react-native";
+import { Video } from "expo-av";
+import { MutableRefObject, forwardRef, useEffect, useRef, useState } from "react";
+import { Image, Text, TouchableOpacity, View } from "react-native";
 import { Cell, Table, TableWrapper } from "react-native-table-component";
 import { styled } from "styled-components/native";
-import { HeartActive, HeartInactive, Link, Lock, PlayBtn } from "../components/svgs";
+import BackButton from "../components/BackButton";
+import Files from "../components/Files";
+import VideoPlayer from "../components/VideoPlayer";
+import { lessonData } from "../components/data";
+import { HeartActive, HeartInactive, Lock, PlayBtn } from "../components/svgs";
 import { useAppDispatch, useAppNavigation, useAppSelector } from "../hooks";
 import { THEME } from "../theme";
 import { RegularText, SetState, Title, checkSubscriptionValidity } from "../utilities";
-import BackButton from "../components/BackButton";
-import Files from "../components/Files";
-import { lessonData } from "../components/data";
-import { AVPlaybackStatus, ResizeMode, Video } from "expo-av";
-import VideoPlayer from "../components/VideoPlayer";
 // import VideoPlayer from "expo-video-player";
 // import VideoPlayer from "../components/VideoPlayer";
 import * as ScreenOrientation from "expo-screen-orientation";
@@ -105,7 +105,7 @@ const TimingsTable = forwardRef((props: {}, ref: MutableRefObject<Video>) => {
   );
 });
 
-const Lesson = () => {
+const Lesson = ({ route }) => {
   const dispatch = useAppDispatch();
   const navigation = useAppNavigation();
   const subscriptionThrough = useAppSelector((state) => state.user.subscriptionThrough);
@@ -115,6 +115,9 @@ const Lesson = () => {
   const [paidShown, setPaidShown] = useState(true);
 
   const videoRef = useRef<Video>(null);
+
+  const data = route.params;
+  console.log("data", data);
 
   const handleDeviceRotation = async () => {
     const orientation = await ScreenOrientation.getOrientationAsync();

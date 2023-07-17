@@ -1,17 +1,16 @@
-import { useEffect, useRef, useState } from "react";
+import axios from "axios";
+import { useRef, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
-import { Image, Keyboard, Text, TextInput, TouchableOpacity, TouchableWithoutFeedback, View } from "react-native";
+import { Keyboard, Text, TextInput, TouchableWithoutFeedback, View } from "react-native";
 import { styled } from "styled-components/native";
+import { Screens } from "../Screens";
 import ButtonPrimary from "../components/ButtonPrimary";
 import ButtonSecondary from "../components/ButtonSecondary";
 import CheckboxItem from "../components/CheckboxItem";
 import TextField from "../components/TextField";
 import { useAppDispatch, useAppNavigation } from "../hooks";
-import { countVisit } from "../store/visitSlice";
-import { THEME } from "../theme";
 import useBackButton from "../hooks/useBackButton";
-import { Screens } from "../Screens";
-import axios from "axios";
+import { THEME } from "../theme";
 
 const FormHeader = styled.Text`
   font-size: 22px;
@@ -66,17 +65,20 @@ export default function SignUp() {
 
   const onSubmit = async (data: typeof defaultValues) => {
     try {
-      // const res = await axios.post(`${THEME.API_URL}/users/`, data);
-      // if (!!res) {
-      // console.log("res", JSON.stringify(res));
-      navigation.navigate(Screens.Quiz);
-      // }
+      const res = await axios.post(`${THEME.API_URL}/users/check`, data);
+      if (res) {
+        console.log("res", JSON.stringify(res));
+        navigation.navigate(Screens.Quiz, {
+          ...data,
+          promoAgreement: promo,
+        });
+      }
       // setModal(false);
 
       // dispatch(toggle({ text: "Аккаунт создан. Проверьте почту", type: "success" }));
     } catch (e) {
       // dispatch(toggle({ text: e.response?.data?.message ?? e.message, type: "error" }));
-      console.log(e);
+      setError("email", { type: "manual", message: e.response?.data?.message });
     }
   };
 

@@ -3,10 +3,10 @@ import { Text, View } from "react-native";
 import { styled } from "styled-components/native";
 import ButtonPrimary from "../components/ButtonPrimary";
 import ButtonSecondary from "../components/ButtonSecondary";
-import { useAppDispatch, useAppNavigation } from "../hooks";
+import { useAppDispatch } from "../hooks";
 import { countVisit } from "../store/visitSlice";
 import { THEME } from "../theme";
-import { Title, RegularText } from "../utilities";
+import { RegularText, Title } from "../utilities";
 
 const Subtitle = styled(RegularText)`
   text-align: center;

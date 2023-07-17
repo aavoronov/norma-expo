@@ -1,14 +1,14 @@
+import { useEffect, useState } from "react";
 import { Text, TouchableOpacity, View } from "react-native";
-import { RegularText, SetState, Title, sumToLocale } from "../utilities";
-import useBackButton from "../hooks/useBackButton";
 import { styled } from "styled-components/native";
-import { useState, useEffect } from "react";
-import { THEME } from "../theme";
-import { subscriptionData } from "../components/data";
 import ButtonPrimary from "../components/ButtonPrimary";
 import ButtonSecondary from "../components/ButtonSecondary";
+import { subscriptionData } from "../components/data";
 import { useAppDispatch, useAppNavigation, useAppSelector } from "../hooks";
+import useBackButton from "../hooks/useBackButton";
 import { updateProfile } from "../store/userSlice";
+import { THEME } from "../theme";
+import { RegularText, SetState, Title, axiosQuery, sumToLocale } from "../utilities";
 
 const Container = styled.View`
   height: 100%;
@@ -17,6 +17,7 @@ const Container = styled.View`
 `;
 
 interface SubscriptionData {
+  id: number;
   term: number;
   price: number;
   isPopular: boolean;
@@ -50,7 +51,7 @@ const SubscriptionPlans = ({ data, plan, setPlan }: { data: SubscriptionData[]; 
   return (
     <View>
       {data.map((item, index) => {
-        const isSelected = plan === item.term;
+        const isSelected = plan === item.id;
 
         const months = item.term / 30;
         const perMonth = Math.round(item.price / months);
@@ -60,7 +61,7 @@ const SubscriptionPlans = ({ data, plan, setPlan }: { data: SubscriptionData[]; 
         return (
           <TouchableOpacity
             activeOpacity={0.5}
-            onPress={() => setPlan(item.term)}
+            onPress={() => setPlan(item.id)}
             style={{
               overflow: "hidden",
               backgroundColor: THEME.WHITISH_F2F3F8,
@@ -138,35 +139,45 @@ const Subscription = () => {
   const navigation = useAppNavigation();
   const subscriptionThrough = useAppSelector((state) => state.user.subscriptionThrough);
 
-  const [plansData, setPlansData] = useState<SubscriptionData[]>(null);
-  const [plan, setPlan] = useState(30);
+  const [plansData, setPlansData] = useState<SubscriptionData[]>([]);
+  const [plan, setPlan] = useState(0);
 
   useEffect(() => {
-    if (!!subscriptionData) {
-      setPlansData(subscriptionData.sort((a, b) => a.term - b.term));
-      //   calculateProfits();
-    }
+    (async () => {
+      try {
+        const res = await axiosQuery({ url: "/subscription-plans" });
+        setPlansData(res.data.sort((a: SubscriptionData, b: SubscriptionData) => a.id - b.id));
+        setPlan(res.data[0].id);
+      } catch (e) {
+        console.log(e.response.message.data);
+      }
+    })();
   }, [subscriptionData]);
 
-  const handleSubmit = () => {
-    const selectedPlan = plansData.find((item) => item.term === plan);
-    alert("Подписка приобретена\nВыбранный план\n" + JSON.stringify(selectedPlan));
+  const handleSubmit = async () => {
+    const selectedPlan = plansData.find((item) => item.id === plan);
 
-    const date = !subscriptionThrough ? new Date() : new Date(Date.parse(subscriptionThrough));
-    date.setDate(date.getDate() + plan);
+    // const date = !subscriptionThrough ? new Date() : new Date(Date.parse(subscriptionThrough));
+    // date.setDate(date.getDate() + plan);
 
-    const extendSubscriptionDurationTo = date.toISOString();
+    // const extendSubscriptionDurationTo = date.toISOString();
 
-    dispatch(updateProfile({ subscriptionThrough: extendSubscriptionDurationTo, subscriptionCancelled: false }));
-    navigation.goBack();
+    try {
+      const res = await axiosQuery({ method: "post", url: "/users/subscribe", payload: { id: plan } });
+      console.log("res.data", res.data);
+      dispatch(updateProfile({ subscriptionThrough: res.data.date, subscriptionCancelled: false }));
+      navigation.goBack();
+    } catch (e) {
+      console.log(e.response.data.message);
+    }
   };
 
   return (
     <Container>
       <Title style={{ textAlign: "left", marginBottom: 16 }}>Выберите план подписки</Title>
       <RegularText style={{ marginBottom: 36 }}>Полный доступ ко всем онлайн-курсам и лекциям</RegularText>
-      {!!plansData && <SubscriptionPlans data={plansData} plan={plan} setPlan={setPlan} />}
-      <ButtonPrimary text='Оформить подписку' onPress={handleSubmit} style={{ marginTop: 50, marginBottom: 25 }} />
+      {!!plansData.length && <SubscriptionPlans data={plansData} plan={plan} setPlan={setPlan} />}
+      {plan !== 0 && <ButtonPrimary text='Оформить подписку' onPress={handleSubmit} style={{ marginTop: 50, marginBottom: 25 }} />}
       <OfferBtn />
     </Container>
   );

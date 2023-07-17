@@ -1,7 +1,7 @@
 import { AVPlaybackStatus, ResizeMode, Video, VideoFullscreenUpdateEvent } from "expo-av";
-import { useState, useRef, forwardRef, useEffect, ForwardedRef } from "react";
-import { Button, Text, TouchableOpacity, View } from "react-native";
 import * as ScreenOrientation from "expo-screen-orientation";
+import { ForwardedRef, forwardRef, useEffect, useState } from "react";
+import { Text, TouchableOpacity, View } from "react-native";
 
 const VideoPlayer = forwardRef((props, ref: ForwardedRef<Video>) => {
   const [hasExpanded, setHasExpanded] = useState(0);

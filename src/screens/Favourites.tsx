@@ -1,12 +1,11 @@
-import { View, Text, TouchableOpacity, Image } from "react-native";
-import useBackButton from "../hooks/useBackButton";
+import { Text, TouchableOpacity, View } from "react-native";
 import { styled } from "styled-components/native";
-import { Title, videoLength } from "../utilities";
-import { courseContent, coursesData } from "../components/data";
-import { useAppNavigation, useAppSelector } from "../hooks";
-import { THEME } from "../theme";
 import { Screens } from "../Screens";
 import { CoursePreview, LockSmall } from "../components/svgs";
+import { useAppNavigation, useAppSelector } from "../hooks";
+import useBackButton from "../hooks/useBackButton";
+import { THEME } from "../theme";
+import { Title, videoLength } from "../utilities";
 
 const Container = styled.ScrollView`
   width: 100%;
@@ -67,7 +66,6 @@ const LessonThumb = ({ lesson }: { lesson: Lesson }) => {
           <LockSmall />
         ) : (
           <>
-            {/* <Image source={require("../../assets/coursePreview.png")} style={{ marginBottom: 5 }} /> */}
             <View style={{ marginBottom: 5 }}>
               <CoursePreview />
             </View>

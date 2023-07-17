@@ -1,11 +1,15 @@
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import axios from "axios";
 import { useEffect, useState } from "react";
 import { Image, Text, View } from "react-native";
 import * as Progress from "react-native-progress";
 import { styled } from "styled-components/native";
-import { useAppDispatch, useAppNavigation } from "../hooks";
+import { useAppDispatch } from "../hooks";
+import { updateProfile } from "../store/userSlice";
 import { THEME } from "../theme";
-import { RegularText, Title } from "../utilities";
-import { updateRole } from "../store/userSlice";
+import { RegularText, Title, axiosQuery } from "../utilities";
+
+const doneImage = require("../../assets/personalizationComplete.png");
 
 const Container = styled.View`
   justify-content: center;
@@ -20,10 +24,27 @@ const Subtitle = styled(RegularText)`
   margin-bottom: 24px;
 `;
 
-const Personalization = (): JSX.Element => {
+interface UserData {
+  message: string;
+  status: number;
+  token: string;
+  user: {
+    email: string;
+    name: string;
+    role: string;
+    subscriptionThrough: Date | null;
+    subscriptionCancelled: boolean;
+    emailConfirmed: boolean;
+  };
+}
+
+const Personalization = ({ route }): JSX.Element => {
   const [progress, setProgress] = useState<number>(0);
   const [complete, setComplete] = useState(false);
+  const [userData, setUserData] = useState<UserData>(null);
   const dispatch = useAppDispatch();
+
+  const data = route.params;
 
   useEffect(() => {
     const timeout = setInterval(() => {
@@ -37,17 +58,54 @@ const Personalization = (): JSX.Element => {
     return () => clearInterval(timeout);
   }, [progress]);
 
+  const signUp = async () => {
+    try {
+      const res = await axios.post(`${THEME.API_URL}/users`, data);
+      if (res.status === 201) {
+        console.log("res", res);
+        console.log("res.status", res.status);
+        console.log("res.data", res.data);
+
+        setUserData(res.data);
+      }
+    } catch (e) {
+      console.log(e.response?.data?.message ?? e.message);
+    }
+  };
+
+  const login = async () => {
+    dispatch(
+      updateProfile({
+        name: userData.user.name,
+        subscriptionThrough: userData.user.subscriptionThrough,
+        role: userData.user.role,
+        email: userData.user.email,
+        subscriptionCancelled: userData.user.subscriptionCancelled,
+        emailConfirmed: userData.user.emailConfirmed,
+      })
+    );
+    await AsyncStorage.setItem("norma-token", userData.token);
+  };
+
   useEffect(() => {
-    if (complete) setTimeout(() => dispatch(updateRole({ role: "user" })), 2000);
+    signUp();
+  }, []);
+
+  useEffect(() => {
+    // if (complete) setTimeout(() => dispatch(updateRole({ role: "user" })), 2000);
+    if (complete) console.log("complete");
+    else console.log("incomplete");
+    if (complete)
+      setTimeout(() => {
+        console.log("userData", userData);
+        login();
+      }, 2000);
   }, [complete]);
 
   if (complete) {
     return (
       <>
-        <Image
-          source={require("../../assets/personalizationComplete.png")}
-          style={[{ maxWidth: "80%", resizeMode: "contain", marginBottom: 0 }]}
-        />
+        <Image source={doneImage} style={[{ maxWidth: "80%", resizeMode: "contain", marginBottom: 0 }]} />
         <Title style={{ marginBottom: 48 }}>Готово!</Title>
       </>
     );

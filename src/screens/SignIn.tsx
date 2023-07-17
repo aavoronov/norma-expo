@@ -1,16 +1,17 @@
-import { useEffect, useRef, useState } from "react";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import axios from "axios";
+import { useRef, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
-import { Image, Keyboard, Text, TextInput, TouchableOpacity, TouchableWithoutFeedback, View } from "react-native";
+import { Keyboard, Text, TextInput, TouchableWithoutFeedback, View } from "react-native";
 import { styled } from "styled-components/native";
+import { Screens } from "../Screens";
 import ButtonPrimary from "../components/ButtonPrimary";
 import ButtonSecondary from "../components/ButtonSecondary";
 import TextField from "../components/TextField";
 import { useAppDispatch, useAppNavigation } from "../hooks";
-import { updateRole } from "../store/userSlice";
-import { THEME } from "../theme";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import useBackButton from "../hooks/useBackButton";
-import { Screens } from "../Screens";
+import { updateProfile } from "../store/userSlice";
+import { THEME } from "../theme";
 
 const FormHeader = styled.Text`
   font-size: 22px;
@@ -53,8 +54,29 @@ export default function SignIn() {
   const onSubmit = async (data: typeof defaultValues) => {
     console.log("data", JSON.stringify(data));
     // navigation.navigate("Quiz");
-    dispatch(updateRole({ role: "user" }));
-    await AsyncStorage.setItem("role", "user");
+
+    try {
+      const res = await axios.post(`${THEME.API_URL}/users/auth`, { ...data });
+      console.log("res", res);
+      dispatch(
+        updateProfile({
+          name: res.data.user.name,
+          subscriptionThrough: res.data.user.subscriptionThrough,
+          role: res.data.user.role,
+          email: res.data.user.email,
+          subscriptionCancelled: res.data.user.subscriptionCancelled,
+          emailConfirmed: res.data.user.emailConfirmed,
+        })
+      );
+      await AsyncStorage.setItem("norma-token", res.data.token);
+    } catch (e) {
+      console.log("e", e.response.data.message);
+      setError("email", { type: "manual", message: "" });
+      setError("password", { type: "manual", message: e.response.data.message });
+    }
+
+    // dispatch(updateRole({ role: "user" }));
+    // await AsyncStorage.setItem("role", "user");
   };
 
   useBackButton();
@@ -78,6 +100,12 @@ export default function SignIn() {
 
   const ref_input2 = useRef<TextInput>(null);
 
+  const clearNoAccountFoundError = () => {
+    if (errors.email && errors.email.message === "") {
+      clearErrors(["email", "password"]);
+    }
+  };
+
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
       <View style={{ height: "100%", justifyContent: "space-between", paddingVertical: 100 }}>
@@ -99,7 +127,10 @@ export default function SignIn() {
                 <TextField
                   value={value}
                   onBlur={onBlur}
-                  setValue={onChange}
+                  setValue={(value: string) => {
+                    onChange(value);
+                    clearErrors();
+                  }}
                   placeholder='Адрес электронной почты'
                   returnKeyType='next'
                   onSubmitEditing={() => ref_input2.current.focus()}
@@ -109,7 +140,7 @@ export default function SignIn() {
               )}
               name='email'
             />
-            {errors.email && <ErrorMessage>{errors.email.message}</ErrorMessage>}
+            {errors.email?.message && <ErrorMessage>{errors.email.message}</ErrorMessage>}
           </FieldWrap>
 
           <FieldWrap>
@@ -122,7 +153,10 @@ export default function SignIn() {
                 <TextField
                   value={value}
                   onBlur={onBlur}
-                  setValue={onChange}
+                  setValue={(value: string) => {
+                    onChange(value);
+                    clearErrors();
+                  }}
                   placeholder='Пароль'
                   returnKeyType='done'
                   ref={ref_input2}

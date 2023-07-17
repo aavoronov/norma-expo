@@ -1,14 +1,13 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useState } from "react";
 import { Image } from "react-native";
-import { styled } from "styled-components/native";
+import { Screens } from "../Screens";
 import ButtonPrimary from "../components/ButtonPrimary";
 import ButtonSecondary from "../components/ButtonSecondary";
 import { useAppDispatch, useAppNavigation } from "../hooks";
 import { countVisit } from "../store/visitSlice";
 import { THEME } from "../theme";
-import { RegularText, Title } from "../utilities";
-import { Screens } from "../Screens";
+import { Title } from "../utilities";
 
 const subtitles = [
   "Изучите самые актуальные сферы: фитнес, ресторанный бизнес, туризм",

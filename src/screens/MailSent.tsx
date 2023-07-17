@@ -1,10 +1,8 @@
 import { useEffect } from "react";
-import { Image, TouchableOpacity } from "react-native";
-import { styled } from "styled-components/native";
-import { THEME } from "../theme";
+import { Image } from "react-native";
 import { useAppNavigation } from "../hooks";
-import { RegularText, Title } from "../utilities";
 import useBackButton from "../hooks/useBackButton";
+import { RegularText, Title } from "../utilities";
 
 const MailSent = () => {
   const navigation = useAppNavigation();

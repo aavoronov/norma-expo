@@ -1,15 +1,11 @@
 import { useEffect } from "react";
-import { Image, TouchableOpacity } from "react-native";
-import { styled } from "styled-components/native";
-import { THEME } from "../theme";
-import { useAppDispatch, useAppNavigation } from "../hooks";
-import { RegularText, Title } from "../utilities";
+import { Image } from "react-native";
+import { useAppNavigation } from "../hooks";
 import useBackButton from "../hooks/useBackButton";
-import { updateProfile } from "../store/userSlice";
+import { RegularText, Title } from "../utilities";
 
 const CheckYourEmail = () => {
   const navigation = useAppNavigation();
-  const dispatch = useAppDispatch();
 
   useBackButton();
 

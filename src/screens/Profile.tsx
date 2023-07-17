@@ -1,15 +1,15 @@
-import { Text, TouchableOpacity, View, ScrollView, Image } from "react-native";
-import { NavigationProp, RegularText, Title, getSubscriptionExpiryDate, subscriptionText, videoLength } from "../utilities";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useAppDispatch, useAppNavigation, useAppSelector } from "../hooks";
-import { updateRole } from "../store/userSlice";
+import { useFocusEffect } from "@react-navigation/native";
+import { useCallback } from "react";
+import { ScrollView, Text, TouchableOpacity, View } from "react-native";
 import { styled } from "styled-components/native";
-import { THEME } from "../theme";
-import { Chevron, ChevronGrey, CoursePreview } from "../components/svgs";
-import ButtonPrimary from "../components/ButtonPrimary";
-import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { Screens } from "../Screens";
-import { courseContent, coursesData } from "../components/data";
+import ButtonPrimary from "../components/ButtonPrimary";
+import { Chevron, ChevronGrey, CoursePreview } from "../components/svgs";
+import { useAppDispatch, useAppNavigation, useAppSelector } from "../hooks";
+import { updateProfile, updateRole } from "../store/userSlice";
+import { THEME } from "../theme";
+import { NavigationProp, RegularText, Title, axiosQuery, subscriptionText, videoLength } from "../utilities";
 
 const Container = styled.ScrollView`
   width: 100%;
@@ -33,8 +33,18 @@ const MainAccountBlocksContainer = styled.View`
 const Account = ({ navigation }: { navigation: NavigationProp }) => {
   const { name: userName, email, emailConfirmed } = useAppSelector((state) => state.user);
 
-  const handleButtonPress = () => {
-    emailConfirmed ? navigation.navigate(Screens.ManageProfile) : navigation.navigate(Screens.CheckYourEmail);
+  const sendVerification = async () => {
+    try {
+      const res = await axiosQuery({ url: "/users/send-verification" });
+      navigation.navigate(Screens.CheckYourEmail);
+      console.log("res", res);
+    } catch (e) {
+      console.log("e", e.response.data.message);
+    }
+  };
+
+  const handleButtonPress = async () => {
+    emailConfirmed ? navigation.navigate(Screens.ManageProfile) : sendVerification();
   };
 
   return (
@@ -169,7 +179,19 @@ const OtherThings = ({ navigation }: { navigation: NavigationProp }) => {
 const Profile = () => {
   const dispatch = useAppDispatch();
   const navigation = useAppNavigation();
-  const subscriptionThrough = useAppSelector((state) => state.user.subscriptionThrough);
+  const { subscriptionThrough, emailConfirmed } = useAppSelector((state) => state.user);
+
+  useFocusEffect(
+    useCallback(() => {
+      (async () => {
+        if (!emailConfirmed) {
+          const res = await axiosQuery({ url: "/users/reauth" });
+          console.log("res.data", res.data);
+          dispatch(updateProfile(res.data));
+        }
+      })();
+    }, [])
+  );
 
   const logout = async () => {
     await AsyncStorage.removeItem("role");

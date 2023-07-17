@@ -1,8 +1,8 @@
 import { Text, TouchableOpacity, View } from "react-native";
-import { Link, Lock, LockSmall } from "../components/svgs";
-import { THEME } from "../theme";
-import usePaidAction from "../hooks/usePaidAction";
+import { Link, LockSmall } from "../components/svgs";
 import { useAppSelector } from "../hooks";
+import usePaidAction from "../hooks/usePaidAction";
+import { THEME } from "../theme";
 import { checkSubscriptionValidity } from "../utilities";
 
 interface ILessonFile {
