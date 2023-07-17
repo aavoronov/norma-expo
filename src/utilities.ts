@@ -140,7 +140,7 @@ export const getSubscriptionExpiryDate = (dateString: string) => {
 };
 
 export const subscriptionText = (subscriptionThrough: string) => {
-  let text = "Оформите подписку и получите доступ ко всем урокам";
+  let text = "Оформите подписку и получите доступ ко всем урокам";
 
   if (!!subscriptionThrough) {
     const expirationDateText = getSubscriptionExpiryDate(subscriptionThrough);

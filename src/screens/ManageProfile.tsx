@@ -27,16 +27,16 @@ const ManageProfile = () => {
         <Title style={{ textAlign: "left", fontSize: 24, marginBottom: 36 }}>Настройки аккаунта</Title>
         <View style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: 36 }}>
           <View>
-            <Title style={{ textAlign: "left", marginBottom: 8 }}>{userName}</Title>
-            <Text>Ваше имя</Text>
+            <Title style={{ textAlign: "left", marginBottom: 8, fontSize: 18 }}>{userName}</Title>
+            <Text style={{ fontFamily: THEME.FONTS.SFProText400, color: THEME.DARK_GRAY_5D5D69 }}>Ваше имя</Text>
           </View>
           <TouchableOpacity style={{ marginTop: 3 }} onPress={() => navigation.navigate(Screens.EditName)}>
             <Text style={{ fontSize: 14, fontFamily: THEME.FONTS.SFProText400, color: THEME.MAIN_RED }}>Изменить</Text>
           </TouchableOpacity>
         </View>
         <View>
-          <Title style={{ textAlign: "left", marginBottom: 8 }}>{email}</Title>
-          <Text>Электронная почта</Text>
+          <Title style={{ textAlign: "left", marginBottom: 8, fontSize: 18 }}>{email}</Title>
+          <Text style={{ fontFamily: THEME.FONTS.SFProText400, color: THEME.DARK_GRAY_5D5D69 }}>Электронная почта</Text>
         </View>
       </View>
       <View>

@@ -38,7 +38,7 @@ const Onboarding = (): JSX.Element => {
 
   return (
     <>
-      <Image source={images[screen]} style={[{ maxWidth: "100%", resizeMode: "contain" }]} />
+      <Image source={images[screen]} style={[{ maxWidth: "90%", resizeMode: "contain" }]} />
       <Title style={{ textAlign: "center", fontSize: 18, width: "80%", marginTop: 62 }}>{subtitles[screen]}</Title>
       <ButtonPrimary text='Далее' onPress={handleForwardPress} style={{ marginTop: 36, marginBottom: 24 }} />
       <ButtonSecondary text='Пропустить' onPress={handleSkipPress} style={{ color: THEME.BLACKISH_2D2D31 }} />

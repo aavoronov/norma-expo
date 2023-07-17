@@ -6,12 +6,13 @@ import ButtonPrimary from "../components/ButtonPrimary";
 import ButtonSecondary from "../components/ButtonSecondary";
 import CheckboxItem from "../components/CheckboxItem";
 import TextField from "../components/TextField";
-import { useAppDispatch, useAppNavigation } from "../hooks";
+import { useAppDispatch, useAppNavigation, useAppSelector } from "../hooks";
 import { countVisit } from "../store/visitSlice";
 import { THEME } from "../theme";
 import useBackButton from "../hooks/useBackButton";
 import { Screens } from "../Screens";
 import axios from "axios";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const FormHeader = styled.Text`
   font-size: 22px;
@@ -43,9 +44,19 @@ export default function SignUp() {
   const [secure, setSecure] = useState(true);
   const [agreement, setAgreement] = useState(false);
   const [promo, setPromo] = useState(false);
+  const hasVisited = useAppSelector((state) => state.visit.hasVisited);
+  const dispatch = useAppDispatch();
+
+  useEffect(() => {
+    (async () => {
+      if (hasVisited === "signUp") {
+        dispatch(countVisit({ hasVisited: "1" }));
+        await AsyncStorage.setItem("hasVisited", "1");
+      }
+    })();
+  }, []);
 
   const navigation = useAppNavigation();
-  const dispatch = useAppDispatch();
 
   const defaultValues = {
     name: "",

@@ -27,7 +27,7 @@ const Files = ({ files, isPaid }: Props) => {
 
     return (
       <View style={{ flexDirection: "row", alignItems: "center", marginBottom: 8 }}>
-        {isPaid && !isActive ? <LockSmall /> : <Link />}
+        <Link />
         <TouchableOpacity style={{ marginLeft: 8 }} onPress={() => handlePress(item.link)}>
           <Text style={{ fontFamily: THEME.FONTS.SFProText500, fontSize: 14, lineHeight: 22, color: THEME.BLACKISH_2D2D31 }}>
             {item.title}

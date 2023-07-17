@@ -85,8 +85,6 @@ const TimingsTable = forwardRef((props: {}, ref: MutableRefObject<Video>) => {
                       style={{
                         color: THEME.MAIN_RED,
                         fontFamily: THEME.FONTS.SFProText500,
-                        textDecorationLine: "underline",
-                        textDecorationColor: THEME.MAIN_RED,
                       }}>
                       {cellData}
                     </Text>
@@ -95,7 +93,7 @@ const TimingsTable = forwardRef((props: {}, ref: MutableRefObject<Video>) => {
                   cellData
                 )
               }
-              style={[{ justifyContent: "flex-start", marginBottom: 4 }, cellIndex === 0 ? { flex: 1 } : { flex: 3 }]}
+              style={[{ justifyContent: "flex-start", marginBottom: 4 }, cellIndex === 0 ? { flex: 4 } : { flex: 15 }]}
               textStyle={{ fontFamily: THEME.FONTS.SFProText500, fontSize: 14, lineHeight: 22, color: THEME.DARK_GRAY_5D5D69 }}
             />
           ))}
@@ -187,7 +185,7 @@ const Lesson = () => {
 
         <Section>
           <Title style={{ textAlign: "left", marginBottom: 12, fontSize: 18 }}>Описание</Title>
-          <RegularText style={{ lineHeight: 22, marginBottom: 35 }}>{lessonData.description}</RegularText>
+          <RegularText style={{ lineHeight: 22 }}>{lessonData.description}</RegularText>
         </Section>
 
         <Section>

@@ -41,7 +41,7 @@ const Account = ({ navigation }: { navigation: NavigationProp }) => {
     <MainAccountBlocksContainer>
       <Title style={{ textAlign: "left", fontSize: 16 }}>Аккаунт</Title>
       <RegularText style={{ fontSize: 12, lineHeight: 18 }}>
-        {emailConfirmed ? `${userName}\n${email}` : "Ваш аккаунт не подтвержден"}
+        {emailConfirmed ? `${userName}\n${email}` : "Ваш аккаунт не подтвержден"}
       </RegularText>
       <TouchableOpacity style={{ flexDirection: "row", alignItems: "center" }} onPress={handleButtonPress}>
         <Text style={{ fontSize: 12, lineHeight: 13, color: THEME.MAIN_RED, fontFamily: THEME.FONTS.SFProText500 }}>

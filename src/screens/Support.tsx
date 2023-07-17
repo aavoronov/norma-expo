@@ -8,7 +8,7 @@ const Support = () => {
     <>
       <Title style={{ marginBottom: 16 }}>Возникла проблема?</Title>
       <RegularText style={{ textAlign: "center", marginBottom: 32, lineHeight: 22 }}>
-        Сообщите нам, и мы постараемся решить ваш вопрос
+        {`Сообщите нам, и мы постараемся\nрешить ваш вопрос`}
       </RegularText>
       <ButtonPrimary text='Связаться с поддержкой' onPress={() => mailto("pochta@gmail.com")} style={{ marginBottom: 36 }} />
       <RegularText style={{ textAlign: "center" }}>pochta@gmail.com</RegularText>

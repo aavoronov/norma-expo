@@ -141,7 +141,7 @@ const Courses = () => {
 
   return (
     <Container>
-      <Title style={{ textAlign: "left", marginTop: 50, marginBottom: 12 }}>{`Здравствуйте, ${userName}!`}</Title>
+      <Title style={{ textAlign: "left", marginTop: 50, marginBottom: 12, fontSize: 24 }}>{`Здравствуйте, ${userName}!`}</Title>
       <RegularText style={{ marginBottom: 32 }}>Давайте приступим к обучению</RegularText>
       <Filter filter={filter} setFilter={setFilter} />
       {coursesData.map((item: Category, index: number) => {

@@ -3,7 +3,7 @@ import { createSlice } from "@reduxjs/toolkit";
 const visitSlice = createSlice({
   name: "visit",
   initialState: {
-    hasVisited: false,
+    hasVisited: "",
   },
   reducers: {
     countVisit(state, action) {

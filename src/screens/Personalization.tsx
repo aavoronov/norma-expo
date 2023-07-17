@@ -7,6 +7,8 @@ import { THEME } from "../theme";
 import { RegularText, Title } from "../utilities";
 import { updateRole } from "../store/userSlice";
 
+const doneImage = require("../../assets/personalizationComplete.png");
+
 const Container = styled.View`
   justify-content: center;
   align-items: center;
@@ -32,7 +34,7 @@ const Personalization = (): JSX.Element => {
         setProgress((prev) => prev + 1);
       }
       if (progress === 100) setComplete(true);
-    }, 10);
+    }, 40);
 
     return () => clearInterval(timeout);
   }, [progress]);
@@ -44,10 +46,7 @@ const Personalization = (): JSX.Element => {
   if (complete) {
     return (
       <>
-        <Image
-          source={require("../../assets/personalizationComplete.png")}
-          style={[{ maxWidth: "80%", resizeMode: "contain", marginBottom: 0 }]}
-        />
+        <Image source={doneImage} style={[{ maxWidth: "80%", resizeMode: "contain", marginBottom: 0 }]} />
         <Title style={{ marginBottom: 48 }}>Готово!</Title>
       </>
     );

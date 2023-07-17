@@ -7,6 +7,7 @@ import { useAppDispatch, useAppNavigation } from "../hooks";
 import { countVisit } from "../store/visitSlice";
 import { THEME } from "../theme";
 import { Title, RegularText } from "../utilities";
+import { Screens } from "../Screens";
 
 const Subtitle = styled(RegularText)`
   text-align: center;
@@ -18,6 +19,7 @@ const Subtitle = styled(RegularText)`
 
 const CreateAccount = (): JSX.Element => {
   const dispatch = useAppDispatch();
+  const navigation = useAppNavigation();
   return (
     <>
       <Title style={{ marginBottom: 24, fontSize: 24 }}>Создайте аккаунт</Title>
@@ -25,8 +27,9 @@ const CreateAccount = (): JSX.Element => {
       <ButtonPrimary
         text='Регистрация'
         onPress={async () => {
-          dispatch(countVisit({ hasVisited: true }));
-          await AsyncStorage.setItem("hasVisited", "1");
+          dispatch(countVisit({ hasVisited: "signUp" }));
+          await AsyncStorage.setItem("hasVisited", "signUp");
+          // navigation.navigate(Screens.SignUp);
         }}
         style={{ marginBottom: 39 }}
       />
