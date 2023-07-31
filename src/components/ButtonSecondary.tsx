@@ -1,5 +1,5 @@
-import { styled } from "styled-components/native";
 import * as React from "react";
+import { styled } from "styled-components/native";
 import { THEME } from "../theme";
 // import { Mail, Phone } from "../components/svgs";
 

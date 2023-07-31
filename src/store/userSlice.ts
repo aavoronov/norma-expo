@@ -10,9 +10,9 @@ interface UserState {
 }
 
 const initialState: UserState = {
-  email: "rybakova-7@mail.ru",
+  email: "",
   role: "",
-  name: "Юлия",
+  name: "",
   subscriptionThrough: "",
   subscriptionCancelled: false,
   emailConfirmed: false,
@@ -27,8 +27,6 @@ const userSlice = createSlice({
     },
 
     updateProfile(state, action: { type: string; payload: Partial<UserState> }) {
-      console.log("state", state);
-      console.log("action", action);
       return { ...state, ...action.payload };
     },
     resetUser: () => initialState,

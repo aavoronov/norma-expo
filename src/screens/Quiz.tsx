@@ -1,12 +1,12 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Text, TouchableOpacity, View } from "react-native";
 import * as Progress from "react-native-progress";
 import { styled } from "styled-components/native";
+import { Screens } from "../Screens";
 import ButtonPrimary from "../components/ButtonPrimary";
 import { useAppDispatch, useAppNavigation } from "../hooks";
 import { THEME } from "../theme";
-import { RegularText, Title } from "../utilities";
-import { Screens } from "../Screens";
+import { RegularText, Title, axiosQuery } from "../utilities";
 
 const Container = styled.View`
   justify-content: space-between;
@@ -19,24 +19,6 @@ const Subtitle = styled(RegularText)`
   text-align: left;
   margin-bottom: 32px;
 `;
-
-const content = [
-  {
-    title: "Ваша сфера деятельности",
-    subtitle: "Выберите область, которая вам интересна (можно выбрать несколько сфер)",
-    options: ["Фитнес", "Ресторанный бизнес", "Туризм", "Пока не знаю"],
-  },
-  {
-    title: "Ваша позиция",
-    subtitle: "Выберите вашу роль в бизнесе",
-    options: ["Рядовой сотрудник", "Руководитель", "Собственник бизнеса", "Спикер"],
-  },
-  {
-    title: "Ваши ожидания от обучения",
-    subtitle: "Укажите ваши цели (можно выбрать несколько)",
-    options: ["Повысить уровень компетенций", "Получить повышение", "Увеличить прибыль", "Открыть свое дело", "Масштабировать бизнес"],
-  },
-];
 
 interface ChoiceProps {
   screen: number;
@@ -66,22 +48,43 @@ const Option = ({ text, pressed, onPress }: OptionProps) => {
   );
 };
 
-const Quiz = (): JSX.Element => {
+interface Option {
+  option: string;
+}
+
+interface QuizSection {
+  title: string;
+  subtitle: string;
+  isMultipleChoice: boolean;
+  options: Option[];
+}
+
+const Quiz = ({ route }) => {
   const [screen, setScreen] = useState(0);
+
+  const data = route.params;
+  const [content, setContent] = useState<QuizSection[]>([]);
 
   const [occupation, setOccupation] = useState<string[]>([]);
   const [position, setPosition] = useState<string[]>([]);
   const [anticipations, setAnticipations] = useState<string[]>([]);
 
   const navigation = useAppNavigation();
-  const dispatch = useAppDispatch();
 
-  const handleForwardPress = () => {
+  useEffect(() => {
+    (async () => {
+      try {
+        const res = await axiosQuery({ url: "/quiz-options-categories", noAuth: true });
+        setContent(res.data);
+      } catch (e) {
+        console.log("e.response.data.message", e.response.data.message);
+      }
+    })();
+  }, []);
+
+  const handleForwardPress = async () => {
     if (screen === 2) {
-      console.log("occupation", occupation);
-      console.log("position", position);
-      console.log("anticipations", anticipations);
-      navigation.navigate(Screens.Personalization);
+      navigation.navigate(Screens.Personalization, { ...data, occupation, position: position[0], anticipations });
     } else {
       setScreen((prev) => prev + 1);
     }
@@ -98,8 +101,8 @@ const Quiz = (): JSX.Element => {
 
     return (
       <View>
-        {content[screen].options.map((item: string, index: number) => {
-          return <Option text={item} key={index} pressed={state.includes(item)} onPress={(item: string) => onOptionPress(item)} />;
+        {content[screen].options.map((item: Option, index: number) => {
+          return <Option text={item.option} key={index} pressed={state.includes(item.option)} onPress={() => onOptionPress(item.option)} />;
         })}
       </View>
     );
@@ -132,25 +135,29 @@ const Quiz = (): JSX.Element => {
 
   return (
     <Container>
-      <View>
-        <View style={{ marginBottom: 64 }}>
-          <Progress.Bar
-            progress={(screen + 1) / 3}
-            width={null}
-            height={6}
-            borderWidth={0}
-            borderRadius={7}
-            strokeCap='round'
-            color={THEME.MAIN_RED}
-            unfilledColor={THEME.LIGHT_GRAY_DADBE3}
-            style={{ marginBottom: 12 }}
-          />
-          <Text style={{ fontSize: 14, fontFamily: THEME.FONTS.SFProText700 }}>Шаг {screen + 1}/3</Text>
+      {!!content.length && (
+        <View>
+          <View style={{ marginBottom: 64 }}>
+            <Progress.Bar
+              progress={(screen + 1) / 3}
+              width={null}
+              height={6}
+              borderWidth={0}
+              borderRadius={7}
+              strokeCap='round'
+              color={THEME.MAIN_RED}
+              unfilledColor={THEME.LIGHT_GRAY_DADBE3}
+              style={{ marginBottom: 12 }}
+            />
+            <Text style={{ fontSize: 14, fontFamily: THEME.FONTS.SFProText700 }}>
+              Шаг {screen + 1}/{content.length}
+            </Text>
+          </View>
+          <Title style={{ textAlign: "left", marginBottom: 16 }}>{content[screen].title}</Title>
+          <Subtitle>{content[screen].subtitle}</Subtitle>
+          <Choice screen={screen} state={state()} setState={setState()} multiple={content[screen].isMultipleChoice} />
         </View>
-        <Title style={{ textAlign: "left", marginBottom: 16 }}>{content[screen].title}</Title>
-        <Subtitle>{content[screen].subtitle}</Subtitle>
-        <Choice screen={screen} state={state()} setState={setState()} multiple={screen !== 1} />
-      </View>
+      )}
 
       <ButtonPrimary text='Далее' disabled={buttonDisabled} onPress={handleForwardPress} style={{ marginTop: 36, marginBottom: 24 }} />
     </Container>

@@ -1,11 +1,11 @@
-import { TouchableOpacity, Text } from "react-native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { Text, TouchableOpacity } from "react-native";
 import ButtonPrimary from "../components/ButtonPrimary";
+import { useAppDispatch, useAppNavigation } from "../hooks";
 import useBackButton from "../hooks/useBackButton";
-import { RegularText, Title, mailto } from "../utilities";
+import { resetUser } from "../store/userSlice";
 import { THEME } from "../theme";
-import { useAppDispatch, useAppNavigation, useAppSelector } from "../hooks";
-import { Screens } from "../Screens";
-import { resetUser, updateProfile } from "../store/userSlice";
+import { RegularText, Title } from "../utilities";
 
 const Logout = () => {
   useBackButton();
@@ -18,7 +18,14 @@ const Logout = () => {
       <RegularText style={{ textAlign: "center", marginBottom: 32, lineHeight: 22, width: "80%" }}>
         После выхода из аккаунта вы сможете зайти в него снова, используя ваш адрес электронной почты и пароль
       </RegularText>
-      <ButtonPrimary text='Да' onPress={() => dispatch(resetUser())} style={{ marginBottom: 36 }} />
+      <ButtonPrimary
+        text='Да'
+        onPress={async () => {
+          dispatch(resetUser());
+          await AsyncStorage.removeItem("norma-token");
+        }}
+        style={{ marginBottom: 36 }}
+      />
       <TouchableOpacity onPress={() => navigation.goBack()}>
         <Text style={{ fontFamily: THEME.FONTS.SFProText600, fontSize: 16, color: THEME.BLACKISH_2D2D31, textAlign: "center" }}>Нет</Text>
       </TouchableOpacity>

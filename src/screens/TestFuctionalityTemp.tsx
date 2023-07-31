@@ -1,12 +1,11 @@
-import ButtonPrimary from "../components/ButtonPrimary";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { View } from "react-native";
-import { useAppDispatch } from "../hooks";
-import { resetUser, updateProfile } from "../store/userSlice";
-import { countVisit } from "../store/visitSlice";
 import { styled } from "styled-components/native";
-import { resetFaves, setFaves } from "../store/favesSlice";
-import { courseContent } from "../components/data";
+import ButtonPrimary from "../components/ButtonPrimary";
+import { useAppDispatch } from "../hooks";
 import useBackButton from "../hooks/useBackButton";
+import { resetUser } from "../store/userSlice";
+import { countVisit } from "../store/visitSlice";
 
 const ButtonPrimaryWMargin = styled(ButtonPrimary)`
   margin-bottom: 20px;
@@ -20,20 +19,21 @@ const TestFunctionalityTemp = () => {
   return (
     <View>
       <ButtonPrimaryWMargin
-        text='Просрочить подписку'
-        onPress={() => dispatch(updateProfile({ subscriptionThrough: expiredDate.toISOString() }))}
-      />
-      <ButtonPrimaryWMargin text='Выйти' onPress={() => dispatch(resetUser())} />
-      <ButtonPrimaryWMargin
-        text='Выйти и сбросить посещение'
-        onPress={() => {
+        text='Выйти'
+        onPress={async () => {
           dispatch(resetUser());
-          dispatch(countVisit({ visited: false }));
+          await AsyncStorage.removeItem("norma-token");
         }}
       />
-      <ButtonPrimaryWMargin text='Наполнить избранное' onPress={() => dispatch(setFaves(courseContent.lessons))} />
-      <ButtonPrimaryWMargin text='Очистить избранное' onPress={() => dispatch(resetFaves())} />
-      <ButtonPrimaryWMargin text='Подтвердить аккаунт' onPress={() => dispatch(updateProfile({ emailConfirmed: true }))} />
+      <ButtonPrimaryWMargin
+        text='Выйти и сбросить посещение'
+        onPress={async () => {
+          dispatch(resetUser());
+          await AsyncStorage.removeItem("norma-token");
+          dispatch(countVisit({ visited: false }));
+          await AsyncStorage.removeItem("hasVisited");
+        }}
+      />
     </View>
   );
 };

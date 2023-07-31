@@ -1,20 +1,15 @@
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
-import { ImageBackground, Keyboard, TextInput, TouchableOpacity, TouchableWithoutFeedback, View, Text } from "react-native";
+import { Keyboard, TouchableWithoutFeedback, View } from "react-native";
 import { styled } from "styled-components/native";
+import { Screens } from "../Screens";
 import ButtonPrimary from "../components/ButtonPrimary";
+import ButtonSecondary from "../components/ButtonSecondary";
 import TextField from "../components/TextField";
 import { useAppDispatch, useAppNavigation } from "../hooks";
-import { countVisit } from "../store/visitSlice";
-import { THEME } from "../theme";
-import { SignUpFormValidate } from "../utilities";
-import CheckboxItem from "../components/CheckboxItem";
-import ButtonSecondary from "../components/ButtonSecondary";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { Image } from "react-native";
-import { updateRole } from "../store/userSlice";
 import useBackButton from "../hooks/useBackButton";
-import { Screens } from "../Screens";
+import { THEME } from "../theme";
+import { axiosQuery } from "../utilities";
 
 const FormHeader = styled.Text`
   font-size: 22px;
@@ -41,7 +36,7 @@ export default function PasswordReset() {
   const [noSuchAccount, setNoSuchAccount] = useState(false);
 
   const defaultValues = {
-    email: "test@test.ru",
+    email: "",
   };
   const {
     control,
@@ -52,34 +47,19 @@ export default function PasswordReset() {
     formState: { isDirty, errors },
   } = useForm({ defaultValues, mode: "onChange", criteriaMode: "all" });
 
-  const onSubmit = (data: typeof defaultValues) => {
-    console.log("data", JSON.stringify(data));
-    if (data.email === "test@test.ru") {
+  const onSubmit = async (data: typeof defaultValues) => {
+    try {
+      const res = await axiosQuery({ url: "/users/request-restoration", method: "post", payload: { email: data.email }, noAuth: true });
+      // console.log("res.data", res);
       navigation.navigate(Screens.MailSent);
-    } else {
+    } catch (e) {
+      console.log("e", e);
       setNoSuchAccount(true);
       setError("email", { type: "manual", message: "Аккаунт с этой почтой не зарегистрирован" });
     }
   };
 
   useBackButton();
-
-  // const dispatch = useAppDispatch();
-  // const signUpHandler = async (values) => {
-  //   try {
-  //     const res = await axios.post(`${THEME.API_URL}/users/`, { ...values });
-
-  //     // setModal(false);
-  //     setEmail("");
-  //     setPassword("");
-  //     setPasswordRepeat("");
-  //     navigation.navigate("SignInByEmail");
-  //     dispatch(toggle({ text: "Аккаунт создан. Проверьте почту", type: "success" }));
-  //   } catch (e) {
-  //     dispatch(toggle({ text: e.response?.data?.message ?? e.message, type: "error" }));
-  //     // console.log(e);
-  //   }
-  // };
 
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
@@ -100,7 +80,7 @@ export default function PasswordReset() {
               }}
               render={({ field: { onChange, onBlur, value } }) => (
                 <TextField
-                  value={value}
+                  value={value.trim()}
                   onBlur={onBlur}
                   setValue={onChange}
                   placeholder='Адрес электронной почты'

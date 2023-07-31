@@ -7,7 +7,6 @@ const usePaidAction = () => {
   const isActive = checkSubscriptionValidity(subscriptionThrough);
   const navigation = useAppNavigation();
 
-  console.log("isActive", isActive);
   return (callback: () => void) => {
     if (!isActive) {
       return navigation.navigate(Screens.Subscription);

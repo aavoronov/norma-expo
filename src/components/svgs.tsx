@@ -1,5 +1,5 @@
 import * as React from "react";
-import Svg, { SvgProps, Path, G, Mask, Defs, ClipPath } from "react-native-svg";
+import Svg, { G, Path } from "react-native-svg";
 import { THEME } from "../theme";
 
 export const Check = () => (

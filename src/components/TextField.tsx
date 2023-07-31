@@ -85,25 +85,6 @@ const TextField = forwardRef((props: Props, ref: Ref<TextInput>) => {
 
   const headerHeight = useHeaderHeight();
 
-  // {hasIcon === "search" && (
-  //   <Image
-  //     source={require("../../assets/search.png")}
-  //     style={{ width: 18, height: 18, position: "absolute", zIndex: 2, top: 18, left: 60 }}
-  //   />
-  // )}
-  // {hasIcon === "searchGrey" && (
-  //   <Image
-  //     source={require("../../assets/searchGrey.png")}
-  //     style={{ width: 18, height: 18, position: "absolute", zIndex: 2, top: headerHeight + 43, left: 60 }}
-  //   />
-  // )}
-  // {hasIcon === "searchGreyFilterField" && (
-  //   <Image
-  //     source={require("../../assets/searchGrey.png")}
-  //     style={{ width: 18, height: 18, position: "absolute", zIndex: 2, top: 18, left: 20 }}
-  //   />
-  // )}
-
   return (
     <InputWrap style={{ borderRadius: 8, ...containerStyle }}>
       <TextInput

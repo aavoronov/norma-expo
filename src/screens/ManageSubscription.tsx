@@ -1,11 +1,11 @@
+import { Text, TouchableOpacity, View } from "react-native";
 import { styled } from "styled-components/native";
-import useBackButton from "../hooks/useBackButton";
-import { RegularText, Title, checkSubscriptionValidity, subscriptionText } from "../utilities";
-import { TouchableOpacity, View, Text } from "react-native";
-import { THEME } from "../theme";
-import { useAppNavigation, useAppSelector } from "../hooks";
-import ButtonPrimary from "../components/ButtonPrimary";
 import { Screens } from "../Screens";
+import ButtonPrimary from "../components/ButtonPrimary";
+import { useAppNavigation, useAppSelector } from "../hooks";
+import useBackButton from "../hooks/useBackButton";
+import { THEME } from "../theme";
+import { RegularText, Title, checkSubscriptionValidity, subscriptionText } from "../utilities";
 
 const Container = styled.View`
   height: 100%;

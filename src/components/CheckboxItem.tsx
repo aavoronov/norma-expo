@@ -1,7 +1,7 @@
-import { styled } from "styled-components/native";
 import { View } from "react-native";
-import Checkbox from "./Checkbox";
+import { styled } from "styled-components/native";
 import { THEME } from "../theme";
+import Checkbox from "./Checkbox";
 
 const Wrap = styled.View`
   display: flex;

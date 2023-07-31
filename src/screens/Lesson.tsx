@@ -1,20 +1,18 @@
-import { useRef, useState, useEffect, forwardRef, MutableRefObject } from "react";
-import { Button, Dimensions, Image, Text, TouchableOpacity, View } from "react-native";
+import { Video } from "expo-av";
+import { MutableRefObject, forwardRef, useEffect, useRef, useState } from "react";
+import { Image, Text, TouchableOpacity, View } from "react-native";
 import { Cell, Table, TableWrapper } from "react-native-table-component";
 import { styled } from "styled-components/native";
-import { HeartActive, HeartInactive, Link, Lock, PlayBtn } from "../components/svgs";
-import { useAppDispatch, useAppNavigation, useAppSelector } from "../hooks";
-import { THEME } from "../theme";
-import { RegularText, SetState, Title, checkSubscriptionValidity } from "../utilities";
 import BackButton from "../components/BackButton";
 import Files from "../components/Files";
-import { lessonData } from "../components/data";
-import { AVPlaybackStatus, ResizeMode, Video } from "expo-av";
 import VideoPlayer from "../components/VideoPlayer";
-// import VideoPlayer from "expo-video-player";
-// import VideoPlayer from "../components/VideoPlayer";
+import { HeartActive, HeartInactive, Lock, PlayBtn } from "../components/svgs";
+import { useAppDispatch, useAppNavigation, useAppSelector } from "../hooks";
+import { THEME } from "../theme";
+import { RegularText, Title, axiosQuery, checkSubscriptionValidity } from "../utilities";
 import * as ScreenOrientation from "expo-screen-orientation";
 import usePaidAction from "../hooks/usePaidAction";
+import { setFaves } from "../store/favesSlice";
 
 const Container = styled.ScrollView`
   width: 100%;
@@ -29,6 +27,30 @@ const Section = styled.View`
   margin-bottom: 35px;
 `;
 
+interface File {
+  title: string;
+  url: string;
+  order: number;
+}
+interface Lesson {
+  id: number;
+  title: string;
+  video: string;
+  description?: string;
+  duration: number;
+  isPaid: boolean;
+  timings?: string;
+  preview: {
+    url?: string;
+  };
+  files: File[];
+}
+
+interface Timing {
+  time: string;
+  content: string;
+}
+
 const IsPaid = () => {
   return (
     <View style={{ flexDirection: "row", alignItems: "center", marginBottom: 26 }}>
@@ -40,10 +62,10 @@ const IsPaid = () => {
   );
 };
 
-const FaveBtn = ({ isFaved, setIsFaved }: { isFaved: boolean; setIsFaved: SetState<boolean> }) => {
+const FaveBtn = ({ isFaved, toggleFave, id }: { isFaved: boolean; toggleFave: (id: number) => Promise<void>; id: number }) => {
   return (
     <View style={{ flexDirection: "row", alignItems: "center", marginBottom: 37 }}>
-      <TouchableOpacity hitSlop={10} style={{ marginRight: 8 }} onPress={() => setIsFaved((prev) => !prev)}>
+      <TouchableOpacity hitSlop={10} style={{ marginRight: 8 }} onPress={() => toggleFave(id)}>
         {isFaved ? <HeartActive /> : <HeartInactive />}
       </TouchableOpacity>
       <Text style={{ color: THEME.BLACKISH_2D2D31, fontFamily: THEME.FONTS.SFProText500, fontSize: 14 }}>
@@ -66,31 +88,34 @@ function hmsToMs(str: string) {
   return s * 1000;
 }
 
-const TimingsTable = forwardRef((props: {}, ref: MutableRefObject<Video>) => {
+const TimingsTable = forwardRef(({ lessonData }: { lessonData: Lesson }, ref: MutableRefObject<Video>) => {
   const checkForPaidAction = usePaidAction();
+  const timings: Timing[] = JSON.parse(lessonData.timings);
   return (
     <Table>
-      {Object.entries(lessonData.timing).map((rowData, rowIndex) => (
+      {timings.map((rowData, rowIndex) => (
         <TableWrapper key={rowIndex} style={{ flexDirection: "row" }}>
-          {rowData.map((cellData, cellIndex) => (
+          {Object.entries(rowData).map((cellData, cellIndex) => (
             <Cell
               key={cellIndex}
               data={
                 cellIndex === 0 ? (
                   <TouchableOpacity
                     onPress={() => {
-                      checkForPaidAction(() => ref.current.playFromPositionAsync(hmsToMs(cellData)));
+                      lessonData.isPaid
+                        ? checkForPaidAction(() => ref.current.playFromPositionAsync(hmsToMs(cellData[1])))
+                        : ref.current.playFromPositionAsync(hmsToMs(cellData[1]));
                     }}>
                     <Text
                       style={{
                         color: THEME.MAIN_RED,
                         fontFamily: THEME.FONTS.SFProText500,
                       }}>
-                      {cellData}
+                      {cellData[1]}
                     </Text>
                   </TouchableOpacity>
                 ) : (
-                  cellData
+                  cellData[1]
                 )
               }
               style={[{ justifyContent: "flex-start", marginBottom: 4 }, cellIndex === 0 ? { flex: 4 } : { flex: 15 }]}
@@ -103,20 +128,50 @@ const TimingsTable = forwardRef((props: {}, ref: MutableRefObject<Video>) => {
   );
 });
 
-const Lesson = () => {
+const Lesson = ({ route }) => {
   const dispatch = useAppDispatch();
   const navigation = useAppNavigation();
   const subscriptionThrough = useAppSelector((state) => state.user.subscriptionThrough);
   const isActive = checkSubscriptionValidity(subscriptionThrough);
 
-  const [isFaved, setIsFaved] = useState(false);
-  const [paidShown, setPaidShown] = useState(true);
+  const [lessonData, setLessonData] = useState(null);
+
+  const faves = useAppSelector((state) => state.faves);
 
   const videoRef = useRef<Video>(null);
 
+  const data = route.params;
+  const isFaved = faves.map((item) => item.id).includes(data.id);
+
+  const toggleFave = async (id: number) => {
+    try {
+      const res = await axiosQuery({ url: `/favourites`, method: "post", payload: { id: id } });
+
+      const lessons = res.data.map((item) => item.lesson);
+
+      dispatch(setFaves(lessons));
+    } catch (e) {
+      console.log(e.response.data.message);
+    }
+  };
+
+  useEffect(() => {
+    (async () => {
+      if (!!route.params.id) {
+        try {
+          const res = await axiosQuery({ url: `/lessons/${route.params.id}` });
+
+          setLessonData(res.data);
+        } catch (e) {
+          console.log(e.response.data.message);
+        }
+      }
+    })();
+  }, []);
+
   const handleDeviceRotation = async () => {
     const orientation = await ScreenOrientation.getOrientationAsync();
-    console.log("orientation", orientation);
+
     const becameHorizontal = orientation === 3 || orientation === 4;
     const becameVertical = orientation === 1;
 
@@ -135,7 +190,6 @@ const Lesson = () => {
     return () => {
       ScreenOrientation.removeOrientationChangeListeners();
       ScreenOrientation.lockAsync(3);
-      console.log("cleanup");
     };
   }, []);
 
@@ -143,13 +197,12 @@ const Lesson = () => {
     <Container>
       <BackButton navigation={navigation} />
 
-      {/* <Image source={require("../../assets/temp/Group514111.png")} style={{ marginBottom: 28 }} /> */}
-      {(!lessonData.isPaid || isActive) && (
+      {(!lessonData?.isPaid || isActive) && lessonData?.video && (
         <View style={{ width: "100%", height: 300, marginTop: 50, marginBottom: 100 }}>
           <VideoPlayer ref={videoRef} />
         </View>
       )}
-      {!!lessonData.isPaid && !isActive && (
+      {!!lessonData?.isPaid && !isActive && (
         <View
           style={{
             width: "100%",
@@ -178,26 +231,35 @@ const Lesson = () => {
         </View>
       )}
 
-      <MainContentContainerWithPadding>
-        <Title style={{ textAlign: "left", marginBottom: 16 }}>{lessonData.title}</Title>
-        {!!lessonData.isPaid && !isActive && <IsPaid />}
-        <FaveBtn isFaved={isFaved} setIsFaved={setIsFaved} />
+      {!!lessonData && (
+        <MainContentContainerWithPadding>
+          <Title style={{ textAlign: "left", marginBottom: 16 }}>{lessonData.title}</Title>
+          {!!lessonData.isPaid && !isActive && <IsPaid />}
+          <FaveBtn isFaved={isFaved} toggleFave={toggleFave} id={data.id} />
 
-        <Section>
-          <Title style={{ textAlign: "left", marginBottom: 12, fontSize: 18 }}>Описание</Title>
-          <RegularText style={{ lineHeight: 22 }}>{lessonData.description}</RegularText>
-        </Section>
+          {lessonData.description && (
+            <Section>
+              <Title style={{ textAlign: "left", marginBottom: 12, fontSize: 18 }}>Описание</Title>
+              <RegularText style={{ lineHeight: 22 }}>{lessonData.description}</RegularText>
+            </Section>
+          )}
 
-        <Section>
-          <Title style={{ textAlign: "left", marginBottom: 12, fontSize: 18 }}>Тайминг</Title>
-          <TimingsTable ref={videoRef} />
-        </Section>
+          {!!lessonData.timings && lessonData.timings !== "[]" && (
+            <Section>
+              <Title style={{ textAlign: "left", marginBottom: 12, fontSize: 18 }}>Тайминг</Title>
+              <TimingsTable lessonData={lessonData} ref={videoRef} />
+            </Section>
+          )}
 
-        <Section>
-          <Title style={{ textAlign: "left", marginBottom: 12, fontSize: 18 }}>Файлы</Title>
-          <Files files={lessonData.files} isPaid={lessonData.isPaid && paidShown} />
-        </Section>
-      </MainContentContainerWithPadding>
+          {lessonData.files?.length && (
+            <Section>
+              <Title style={{ textAlign: "left", marginBottom: 12, fontSize: 18 }}>Файлы</Title>
+              <Files files={lessonData.files} isPaid={lessonData.isPaid} />
+            </Section>
+          )}
+        </MainContentContainerWithPadding>
+      )}
+
     </Container>
   );
 };

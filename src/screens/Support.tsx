@@ -1,8 +1,19 @@
+import { useEffect, useState } from "react";
 import ButtonPrimary from "../components/ButtonPrimary";
 import useBackButton from "../hooks/useBackButton";
-import { RegularText, Title, mailto } from "../utilities";
+import { RegularText, Title, axiosQuery, mailto } from "../utilities";
 
 const Support = () => {
+  const [adminEmail, setAdminEmail] = useState("");
+  const getAdminEmail = async () => {
+    const res = await axiosQuery({ url: `/generic-data/email` });
+    setAdminEmail(res.data.value);
+  };
+
+  useEffect(() => {
+    getAdminEmail();
+  }, []);
+
   useBackButton();
   return (
     <>
@@ -10,8 +21,12 @@ const Support = () => {
       <RegularText style={{ textAlign: "center", marginBottom: 32, lineHeight: 22 }}>
         {`Сообщите нам, и мы постараемся\nрешить ваш вопрос`}
       </RegularText>
-      <ButtonPrimary text='Связаться с поддержкой' onPress={() => mailto("pochta@gmail.com")} style={{ marginBottom: 36 }} />
-      <RegularText style={{ textAlign: "center" }}>pochta@gmail.com</RegularText>
+      {!!adminEmail && (
+        <>
+          <ButtonPrimary text='Связаться с поддержкой' onPress={() => mailto(adminEmail)} style={{ marginBottom: 36 }} />
+          <RegularText style={{ textAlign: "center" }}>{adminEmail}</RegularText>
+        </>
+      )}
     </>
   );
 };

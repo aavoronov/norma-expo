@@ -1,17 +1,18 @@
+import axios from "axios";
 import { useEffect, useRef, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
-import { Image, Keyboard, Text, TextInput, TouchableOpacity, TouchableWithoutFeedback, View } from "react-native";
+import { Keyboard, Text, TextInput, TouchableWithoutFeedback, View } from "react-native";
 import { styled } from "styled-components/native";
+import { Screens } from "../Screens";
 import ButtonPrimary from "../components/ButtonPrimary";
 import ButtonSecondary from "../components/ButtonSecondary";
 import CheckboxItem from "../components/CheckboxItem";
 import TextField from "../components/TextField";
 import { useAppDispatch, useAppNavigation, useAppSelector } from "../hooks";
-import { countVisit } from "../store/visitSlice";
-import { THEME } from "../theme";
 import useBackButton from "../hooks/useBackButton";
-import { Screens } from "../Screens";
-import axios from "axios";
+import { THEME } from "../theme";
+import { countVisit } from "../store/visitSlice";
+
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const FormHeader = styled.Text`
@@ -77,17 +78,20 @@ export default function SignUp() {
 
   const onSubmit = async (data: typeof defaultValues) => {
     try {
-      // const res = await axios.post(`${THEME.API_URL}/users/`, data);
-      // if (!!res) {
-      // console.log("res", JSON.stringify(res));
-      navigation.navigate(Screens.Quiz);
-      // }
+      const res = await axios.post(`${THEME.API_URL}/users/check`, data);
+      if (res) {
+        navigation.navigate(Screens.Quiz, {
+          ...data,
+          name: data.name.trim(),
+          promoAgreement: promo,
+        });
+      }
       // setModal(false);
 
       // dispatch(toggle({ text: "Аккаунт создан. Проверьте почту", type: "success" }));
     } catch (e) {
       // dispatch(toggle({ text: e.response?.data?.message ?? e.message, type: "error" }));
-      console.log(e);
+      setError("email", { type: "manual", message: e.response?.data?.message });
     }
   };
 
@@ -138,7 +142,7 @@ export default function SignUp() {
             }}
             render={({ field: { onChange, onBlur, value } }) => (
               <TextField
-                value={value}
+                value={value.trim()}
                 onBlur={onBlur}
                 setValue={onChange}
                 placeholder='Адрес электронной почты'
@@ -168,7 +172,7 @@ export default function SignUp() {
             }}
             render={({ field: { onChange, onBlur, value } }) => (
               <TextField
-                value={value}
+                value={value.trim()}
                 onBlur={onBlur}
                 setValue={onChange}
                 placeholder='Пароль'
@@ -200,7 +204,7 @@ export default function SignUp() {
             }}
             render={({ field: { onChange, onBlur, value } }) => (
               <TextField
-                value={value}
+                value={value.trim()}
                 onBlur={onBlur}
                 setValue={onChange}
                 placeholder='Повторите пароль'

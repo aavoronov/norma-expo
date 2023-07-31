@@ -1,14 +1,13 @@
-import { View, Text, TouchableOpacity } from "react-native";
-import useBackButton from "../hooks/useBackButton";
-import { styled } from "styled-components/native";
-import { Title } from "../utilities";
-import { useAppDispatch, useAppNavigation, useAppSelector } from "../hooks";
-import { THEME } from "../theme";
-import ButtonPrimary from "../components/ButtonPrimary";
-import { resetUser, updateProfile } from "../store/userSlice";
-import { Screens } from "../Screens";
+import axios from "axios";
 import { Controller, useForm } from "react-hook-form";
+import { styled } from "styled-components/native";
+import ButtonPrimary from "../components/ButtonPrimary";
 import TextField from "../components/TextField";
+import { useAppDispatch, useAppNavigation, useAppSelector } from "../hooks";
+import useBackButton from "../hooks/useBackButton";
+import { updateProfile } from "../store/userSlice";
+import { THEME } from "../theme";
+import { AxiosConfig, Title } from "../utilities";
 
 const Container = styled.View`
   height: 100%;
@@ -40,8 +39,11 @@ const EditName = () => {
     formState: { isDirty, errors },
   } = useForm({ defaultValues, mode: "onChange", criteriaMode: "all" });
 
-  const onSubmit = (data: typeof defaultValues) => {
-    console.log("data", JSON.stringify(data));
+  const onSubmit = async (data: typeof defaultValues) => {
+    const res = await axios(await AxiosConfig.createAsync({ url: `/users/edit/`, method: "patch", payload: { name: data.name } }));
+
+    // const res1 = await axios(await axiosConfig({ url: `/users/edit/`, method: "patch", payload: { name: data.name } }));
+
     dispatch(updateProfile({ name: data.name }));
     navigation.goBack();
   };

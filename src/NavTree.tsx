@@ -1,45 +1,41 @@
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { DefaultTheme, NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import { Text, TouchableOpacity } from "react-native";
-import { useAppDispatch, useAppSelector } from "./hooks";
-import CreateAccount from "./screens/CreateAccount";
-import Onboarding from "./screens/Onboarding";
-import SignUp from "./screens/SignUp";
-import { Layout } from "./components/Layouts";
-import { useCallback, useEffect, useState } from "react";
 import { useFonts } from "expo-font";
-import * as SplashScreen from "expo-splash-screen";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { countVisit } from "./store/visitSlice";
-import Quiz from "./screens/Quiz";
-import Personalization from "./screens/Personalization";
-import SignIn from "./screens/SignIn";
-import { Image } from "react-native";
-import Courses from "./screens/Courses";
-import PasswordReset from "./screens/PasswordReset";
-import MailSent from "./screens/MailSent";
-import { createBottomTabNavigator, useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
-import { HomeIconSvg, ProfileIconSvg } from "./components/svgs";
-import { updateRole } from "./store/userSlice";
-import Profile from "./screens/Profile";
-import Course from "./screens/Course";
-import Lesson from "./screens/Lesson";
-import { THEME } from "./theme";
-import Subscription from "./screens/Subscription";
-import CheckYourEmail from "./screens/CheckYourEmail";
+import { useEffect } from "react";
 import { Screens } from "./Screens";
+import { Layout } from "./components/Layouts";
+import { HomeIconSvg, ProfileIconSvg } from "./components/svgs";
+import { useAppDispatch, useAppSelector } from "./hooks";
+import BecomeSpeaker from "./screens/BecomeSpeaker";
+import CancelSubscriptionConfirmation from "./screens/CancelSubscriptionConfirmation";
+import CheckYourEmail from "./screens/CheckYourEmail";
+import Course from "./screens/Course";
+import Courses from "./screens/Courses";
+import CreateAccount from "./screens/CreateAccount";
+import DeleteAccount from "./screens/DeleteAccount";
+import EditName from "./screens/EditName";
 import Favourites from "./screens/Favourites";
 import LegalDocuments from "./screens/LegalDocuments";
-import Support from "./screens/Support";
-import BecomeSpeaker from "./screens/BecomeSpeaker";
-import TestFunctionalityTemp from "./screens/TestFuctionalityTemp";
-import ManageSubscription from "./screens/ManageSubscription";
-import CancelSubscriptionConfirmation from "./screens/CancelSubscriptionConfirmation";
-import SubscriptionCancelled from "./screens/SubscriptionCancelled";
+import Lesson from "./screens/Lesson";
 import Logout from "./screens/Logout";
-import DeleteAccount from "./screens/DeleteAccount";
+import MailSent from "./screens/MailSent";
 import ManageProfile from "./screens/ManageProfile";
-import EditName from "./screens/EditName";
+import ManageSubscription from "./screens/ManageSubscription";
+import Onboarding from "./screens/Onboarding";
+import PasswordReset from "./screens/PasswordReset";
+import Personalization from "./screens/Personalization";
+import Profile from "./screens/Profile";
+import Quiz from "./screens/Quiz";
+import SignIn from "./screens/SignIn";
+import SignUp from "./screens/SignUp";
+import Subscription from "./screens/Subscription";
+import SubscriptionCancelled from "./screens/SubscriptionCancelled";
+import Support from "./screens/Support";
+import TestFunctionalityTemp from "./screens/TestFuctionalityTemp";
+import { countVisit } from "./store/visitSlice";
+import { THEME } from "./theme";
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -82,16 +78,16 @@ const HomeStackScreen = () => {
         )}
       </HomeStack.Screen>
       <HomeStack.Screen name={Screens.Course} options={{ headerShown: false }}>
-        {() => (
+        {({ route }) => (
           <Layout style={{ paddingRight: 0, paddingLeft: 0 }}>
-            <Course />
+            <Course route={route} />
           </Layout>
         )}
       </HomeStack.Screen>
       <HomeStack.Screen name={Screens.Lesson} options={{ headerShown: false }}>
-        {() => (
+        {({ route }) => (
           <Layout style={{ paddingRight: 0, paddingLeft: 0 }}>
-            <Lesson />
+            <Lesson route={route} />
           </Layout>
         )}
       </HomeStack.Screen>
@@ -254,16 +250,16 @@ const UnauthorizedScreen = () => {
       </UnauthorizedStack.Screen>
 
       <UnauthorizedStack.Screen name={Screens.Quiz} options={{ title: "", headerShown: false }}>
-        {() => (
+        {({ route }) => (
           <Layout>
-            <Quiz />
+            <Quiz route={route} />
           </Layout>
         )}
       </UnauthorizedStack.Screen>
       <UnauthorizedStack.Screen name={Screens.Personalization} options={{ title: "Персонализация", headerShown: false }}>
-        {() => (
+        {({ route }) => (
           <Layout>
-            <Personalization />
+            <Personalization route={route} />
           </Layout>
         )}
       </UnauthorizedStack.Screen>
@@ -288,18 +284,7 @@ export default function NavTree() {
   useEffect(() => {
     (async () => {
       const visited = await AsyncStorage.getItem("hasVisited");
-      console.log(visited);
-
       dispatch(countVisit({ hasVisited: !!visited }));
-    })();
-  }, []);
-
-  useEffect(() => {
-    (async () => {
-      const role = await AsyncStorage.getItem("role");
-      console.log(role);
-
-      dispatch(updateRole({ role: role }));
     })();
   }, []);
 

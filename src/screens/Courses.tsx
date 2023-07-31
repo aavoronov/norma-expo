@@ -1,42 +1,47 @@
-import { Text, ScrollView, View, Image, TouchableOpacity } from "react-native";
+import { useEffect, useState } from "react";
+import { ImageBackground, ScrollView, Text, TouchableOpacity, View } from "react-native";
 import { styled } from "styled-components/native";
-import { RegularText, SetState, Title, valueOf, videoLength } from "../utilities";
-import { THEME } from "../theme";
-import { useState } from "react";
-import { useAppNavigation, useAppSelector } from "../hooks";
-import { coursesData } from "../components/data";
 import { Screens } from "../Screens";
 import { CoursePreview } from "../components/svgs";
+import { useAppNavigation, useAppSelector } from "../hooks";
+import { THEME } from "../theme";
+import { RegularText, SetState, Title, axiosQuery, videoLength } from "../utilities";
 
 type ActivityTypes = "fitness" | "restaurants" | "tourism";
 
-const humanFriendlyFilterState = [
-  { key: "fitness", humanFriendly: "Фитнес" },
-  { key: "restaurants", humanFriendly: "Рестораны" },
-  { key: "tourism", humanFriendly: "Туризм" },
-] as const;
-
-type HumanFriendlyFilterState = (typeof humanFriendlyFilterState)[number];
-
-interface VideoLesson {
+interface Filter {
+  id: number;
   title: string;
-  type: "video";
-  lessons?: undefined;
-  duration: number;
-  activity: ActivityTypes;
 }
+
+interface Preview {
+  url: string;
+}
+
+interface StandaloneLesson {
+  id: number;
+  title: string;
+  duration: number;
+  createdAt: string;
+  filterId: number;
+  preview?: Preview;
+}
+
+type CourseLesson = Omit<StandaloneLesson, "filterId">[];
 
 interface Course {
+  id: number;
   title: string;
-  type: "course";
-  lessons: number;
-  duration?: undefined;
-  activity: ActivityTypes;
+  filterId: number;
+  createdAt: string;
+  preview?: Preview;
+  lessons: CourseLesson[];
 }
-
-interface Category {
-  category: string;
-  courses: Array<VideoLesson | Course>;
+interface Section {
+  id: number;
+  section: string;
+  lessons: StandaloneLesson[];
+  courses: Course[];
 }
 
 const Container = styled.ScrollView`
@@ -44,14 +49,14 @@ const Container = styled.ScrollView`
   flex: 1;
 `;
 
-const CourseThumb = ({ course }: { course: VideoLesson | Course }) => {
-  const { duration } = course as VideoLesson;
+const CourseThumb = ({ course }: { course: StandaloneLesson | Course }) => {
+  const { duration } = course as StandaloneLesson;
   const { lessons } = course as Course;
-  const { title, type } = course;
+  const { id, title, createdAt, filterId, preview } = course;
 
   const navigation = useAppNavigation();
 
-  const isSingleLessonRatherThanCourse = !!duration && !lessons;
+  const isStandaloneLessonRatherThanCourse = !!duration && !lessons;
 
   const lessonsLength = (value: number) => {
     let suffix = "";
@@ -65,60 +70,76 @@ const CourseThumb = ({ course }: { course: VideoLesson | Course }) => {
     return str;
   };
 
-  const timelapse = isSingleLessonRatherThanCourse ? videoLength(duration) : lessonsLength(lessons);
+  const timelapse = isStandaloneLessonRatherThanCourse ? videoLength(duration) : lessonsLength(lessons.length);
   return (
     <TouchableOpacity
       style={{ width: 150, marginRight: 16 }}
       onPress={() =>
-        navigation.navigate(isSingleLessonRatherThanCourse ? { name: Screens.Lesson, params: {} } : { name: Screens.Course, params: {} })
+        navigation.navigate(
+          isStandaloneLessonRatherThanCourse ? { name: Screens.Lesson, params: { id: id } } : { name: Screens.Course, params: { id: id } }
+        )
       }>
-      <View
-        style={{
-          backgroundColor: THEME.WHITISH_F2F3F8,
-          borderRadius: 12,
-          alignItems: "flex-end",
-          justifyContent: "space-between",
-          flexDirection: "row",
-          paddingTop: 13,
-          paddingLeft: 21,
-          padding: 8,
-          marginBottom: 12,
-        }}>
-        {/* <Image source={require("../../assets/coursePreview.png")} style={{ marginBottom: 5 }} /> */}
-        <View style={{ marginBottom: 5 }}>
-          <CoursePreview />
+      {!!preview?.url ? (
+        <ImageBackground
+          source={{ uri: `${THEME.API_URL}/uploads/previews/${preview.url}` }}
+          resizeMode='cover'
+          style={{ display: "flex", width: "100%", height: 82, marginBottom: 12, borderRadius: 12, overflow: "hidden" }}>
+          <Text style={{ fontFamily: THEME.FONTS.SFProText500, fontSize: 9, position: "absolute", bottom: 8, right: 8 }}>{timelapse}</Text>
+        </ImageBackground>
+      ) : (
+        <View
+          style={{
+            backgroundColor: THEME.WHITISH_F2F3F8,
+            borderRadius: 12,
+            alignItems: "flex-end",
+            justifyContent: "space-between",
+            flexDirection: "row",
+            overflow: "hidden",
+            paddingTop: 13,
+            paddingLeft: 21,
+            padding: 8,
+            marginBottom: 12,
+          }}>
+          <View style={{ marginBottom: 5 }}>
+            <CoursePreview />
+          </View>
+          <Text style={{ fontFamily: THEME.FONTS.SFProText500, fontSize: 9 }}>{timelapse}</Text>
         </View>
-        <Text style={{ fontFamily: THEME.FONTS.SFProText500, fontSize: 9 }}>{timelapse}</Text>
-      </View>
+      )}
+
       <Text style={{ fontFamily: THEME.FONTS.SFProText500, fontSize: 12, color: THEME.BLACKISH_2D2D31 }}>{maybeShortenTitle(title)}</Text>
     </TouchableOpacity>
   );
 };
 
-const SingleCategory = ({ singleCategory, filter }: { singleCategory: Category; filter: HumanFriendlyFilterState }) => {
-  const { category, courses } = singleCategory;
-  const eligibleCourses = courses.filter((item) => item.activity === filter.key);
-  if (!eligibleCourses.length) return;
+const SingleCategory = ({ singleCategory, filter }: { singleCategory: Section; filter: Filter }) => {
+  const { section, lessons, courses } = singleCategory;
+
+  const nonEmptyCourses = courses.filter((item) => !!item.lessons.length);
+  const entitiesToDisplay = [...lessons, ...nonEmptyCourses].sort((a, b) => Date.parse(a.createdAt) - Date.parse(b.createdAt));
+
+  const eligibleEntities = entitiesToDisplay.filter((item) => item.filterId === filter.id);
+  if (!eligibleEntities.length) return;
   return (
     <View style={{ marginBottom: 45 }}>
-      <Title style={{ fontSize: 20, textAlign: "left", marginBottom: 16 }}>{category}</Title>
+      <Title style={{ fontSize: 20, textAlign: "left", marginBottom: 16 }}>{section}</Title>
       <ScrollView horizontal style={{ paddingBottom: 5 }}>
-        {eligibleCourses.map((item: VideoLesson | Course, index: number) => {
-          return <CourseThumb course={item} key={index} />;
+        {eligibleEntities.map((item: StandaloneLesson | Course) => {
+          return <CourseThumb course={item} key={item.id} />;
         })}
       </ScrollView>
     </View>
   );
 };
 
-const Filter = ({ filter, setFilter }: { filter: HumanFriendlyFilterState; setFilter: SetState<HumanFriendlyFilterState> }) => {
+const Filter = ({ filtersData, filter, setFilter }: { filtersData: Filter[]; filter: Filter; setFilter: SetState<Filter> }) => {
   return (
     <View style={{ flexDirection: "row", marginBottom: 32 }}>
-      {humanFriendlyFilterState.map((item) => {
+      {filtersData.map((item) => {
         const isSelected = filter === item;
         return (
           <TouchableOpacity
-            key={item.key}
+            key={item.id}
             onPress={() => setFilter(item)}
             style={{
               paddingHorizontal: 14,
@@ -127,7 +148,7 @@ const Filter = ({ filter, setFilter }: { filter: HumanFriendlyFilterState; setFi
               borderRadius: 30,
               marginRight: 8,
             }}>
-            <Text style={{ color: isSelected ? "#fff" : THEME.BLACKISH_2D2D31 }}>{item.humanFriendly}</Text>
+            <Text style={{ color: isSelected ? "#fff" : THEME.BLACKISH_2D2D31 }}>{item.title}</Text>
           </TouchableOpacity>
         );
       })}
@@ -136,17 +157,45 @@ const Filter = ({ filter, setFilter }: { filter: HumanFriendlyFilterState; setFi
 };
 
 const Courses = () => {
-  const [filter, setFilter] = useState<HumanFriendlyFilterState>(humanFriendlyFilterState[0]);
+  const [filter, setFilter] = useState<Filter>(null);
   const userName = useAppSelector((state) => state.user.name);
+
+  const [coursesData, setCoursesData] = useState<Section[]>([]);
+  const [filtersData, setFiltersData] = useState<Filter[]>([]);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const res = await axiosQuery({ url: "/course-sections" });
+        setCoursesData(res.data);
+      } catch (e) {
+        console.log("e", e.response.data.message);
+      }
+    })();
+  }, []);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const res = await axiosQuery({ url: "/course-filter-options" });
+        setFiltersData(res.data);
+        setFilter(res.data[0]);
+      } catch (e) {
+        console.log("e", e.response.data.message);
+      }
+    })();
+  }, []);
 
   return (
     <Container>
       <Title style={{ textAlign: "left", marginTop: 50, marginBottom: 12, fontSize: 24 }}>{`Здравствуйте, ${userName}!`}</Title>
       <RegularText style={{ marginBottom: 32 }}>Давайте приступим к обучению</RegularText>
-      <Filter filter={filter} setFilter={setFilter} />
-      {coursesData.map((item: Category, index: number) => {
-        return <SingleCategory singleCategory={item} key={index} filter={filter} />;
-      })}
+      {!!filtersData.length && <Filter filtersData={filtersData} filter={filter} setFilter={setFilter} />}
+      {!!filter &&
+        !!coursesData.length &&
+        coursesData.map((item: Section) => {
+          return <SingleCategory singleCategory={item} key={item.id} filter={filter} />;
+        })}
     </Container>
   );
 };

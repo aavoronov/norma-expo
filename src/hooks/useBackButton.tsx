@@ -1,7 +1,6 @@
 import { useEffect } from "react";
+import { Image, TouchableOpacity } from "react-native";
 import { useAppNavigation } from "../hooks";
-import { TouchableOpacity } from "react-native";
-import { Image } from "react-native";
 
 const useBackButton = () => {
   const navigation = useAppNavigation();

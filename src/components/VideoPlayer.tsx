@@ -1,7 +1,7 @@
 import { AVPlaybackStatus, ResizeMode, Video, VideoFullscreenUpdateEvent } from "expo-av";
-import { useState, useRef, forwardRef, useEffect, ForwardedRef } from "react";
-import { Button, Text, TouchableOpacity, View } from "react-native";
 import * as ScreenOrientation from "expo-screen-orientation";
+import { ForwardedRef, forwardRef, useEffect, useState } from "react";
+import { Text, TouchableOpacity, View } from "react-native";
 
 const VideoPlayer = forwardRef((props, ref: ForwardedRef<Video>) => {
   const [hasExpanded, setHasExpanded] = useState(0);
@@ -12,7 +12,6 @@ const VideoPlayer = forwardRef((props, ref: ForwardedRef<Video>) => {
     if (!!hasExpanded) {
       ScreenOrientation.lockAsync(5);
       timeout = setTimeout(() => ScreenOrientation.unlockAsync(), 2000);
-      console.log("expanded");
     }
 
     return () => timeout && clearTimeout(timeout);
@@ -23,7 +22,6 @@ const VideoPlayer = forwardRef((props, ref: ForwardedRef<Video>) => {
     if (!!hasCollapsed) {
       ScreenOrientation.lockAsync(3);
       timeout = setTimeout(() => ScreenOrientation.unlockAsync(), 2000);
-      console.log("collapsed");
     }
 
     return () => timeout && clearTimeout(timeout);
@@ -40,14 +38,12 @@ const VideoPlayer = forwardRef((props, ref: ForwardedRef<Video>) => {
     if (expanded) {
       // TODO
       setHasExpanded((prev) => prev + 1);
-      console.log("hasExpanded", hasExpanded);
       // ScreenOrientation.lockAsync(5);
       // setTimeout(() => ScreenOrientation.unlockAsync(), 200);
     }
     if (collapsed) {
       // TODO
       setHasCollapsed((prev) => prev + 1);
-      console.log("hasCollapsed", hasCollapsed);
       // ScreenOrientation.lockAsync(3);
       // setTimeout(() => ScreenOrientation.unlockAsync(), 200);
     }

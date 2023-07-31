@@ -1,8 +1,8 @@
-import { TouchableOpacity, Text } from "react-native";
-import useBackButton from "../hooks/useBackButton";
+import { Text, TouchableOpacity } from "react-native";
 import { styled } from "styled-components/native";
-import { Title } from "../utilities";
+import useBackButton from "../hooks/useBackButton";
 import { THEME } from "../theme";
+import { Title } from "../utilities";
 
 const Container = styled.View`
   height: 100%;

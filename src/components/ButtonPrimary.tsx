@@ -1,6 +1,6 @@
-import { View, TouchableOpacity, Text, Image } from "react-native";
-import { styled } from "styled-components/native";
 import * as React from "react";
+import { TouchableOpacity, View } from "react-native";
+import { styled } from "styled-components/native";
 import { THEME } from "../theme";
 
 // import { ArrowIcon } from "../components/svgs";

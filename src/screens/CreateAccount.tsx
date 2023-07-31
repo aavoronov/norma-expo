@@ -6,8 +6,7 @@ import ButtonSecondary from "../components/ButtonSecondary";
 import { useAppDispatch, useAppNavigation } from "../hooks";
 import { countVisit } from "../store/visitSlice";
 import { THEME } from "../theme";
-import { Title, RegularText } from "../utilities";
-import { Screens } from "../Screens";
+import { RegularText, Title } from "../utilities";
 
 const Subtitle = styled(RegularText)`
   text-align: center;
@@ -29,7 +28,6 @@ const CreateAccount = (): JSX.Element => {
         onPress={async () => {
           dispatch(countVisit({ hasVisited: "signUp" }));
           await AsyncStorage.setItem("hasVisited", "signUp");
-          // navigation.navigate(Screens.SignUp);
         }}
         style={{ marginBottom: 39 }}
       />
@@ -48,7 +46,7 @@ const CreateAccount = (): JSX.Element => {
         <ButtonSecondary
           text='Войти'
           onPress={async () => {
-            dispatch(countVisit({ hasVisited: true }));
+            dispatch(countVisit({ hasVisited: "1" }));
             await AsyncStorage.setItem("hasVisited", "1");
           }}
           style={{ width: "auto" }}

@@ -1,11 +1,11 @@
-import { TouchableOpacity, Text } from "react-native";
-import ButtonPrimary from "../components/ButtonPrimary";
-import useBackButton from "../hooks/useBackButton";
-import { RegularText, Title, mailto } from "../utilities";
-import { THEME } from "../theme";
-import { useAppDispatch, useAppNavigation, useAppSelector } from "../hooks";
+import { Text, TouchableOpacity } from "react-native";
 import { Screens } from "../Screens";
+import ButtonPrimary from "../components/ButtonPrimary";
+import { useAppDispatch, useAppNavigation } from "../hooks";
+import useBackButton from "../hooks/useBackButton";
 import { updateProfile } from "../store/userSlice";
+import { THEME } from "../theme";
+import { RegularText, Title, axiosQuery } from "../utilities";
 
 const CancelSubscriptionConfirmation = () => {
   useBackButton();
@@ -20,9 +20,14 @@ const CancelSubscriptionConfirmation = () => {
       </RegularText>
       <ButtonPrimary
         text='Да'
-        onPress={() => {
-          dispatch(updateProfile({ subscriptionCancelled: true }));
-          navigation.navigate(Screens.SubscriptionCancelled);
+        onPress={async () => {
+          try {
+            const res = await axiosQuery({ method: "post", url: "/users/edit", payload: { subscriptionCancelled: true } });
+            dispatch(updateProfile({ subscriptionCancelled: true }));
+            navigation.navigate(Screens.SubscriptionCancelled);
+          } catch (e) {
+            console.log(e.response.data.message);
+          }
         }}
         style={{ marginBottom: 36 }}
       />

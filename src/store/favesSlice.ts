@@ -1,14 +1,21 @@
 import { createSlice } from "@reduxjs/toolkit";
 
-const initialState = [];
+interface Fave {
+  id: number;
+  title: string;
+  duration: number;
+  isPaid: boolean;
+}
+
+type FavesState = Fave[];
+
+const initialState: FavesState = [];
 
 const favesSlice = createSlice({
   name: "faves",
   initialState,
   reducers: {
     setFaves(state, action) {
-      console.log("state", state);
-      console.log("action", action);
       return action.payload;
     },
     resetFaves: () => initialState,

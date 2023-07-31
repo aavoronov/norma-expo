@@ -1,8 +1,8 @@
 import Ionicons from "@expo/vector-icons/Ionicons";
 import React from "react";
 import { TouchableOpacity } from "react-native";
-import { Check } from "./svgs";
 import { THEME } from "../theme";
+import { Check } from "./svgs";
 
 interface Props {
   checked: boolean;
