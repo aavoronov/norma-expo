@@ -11,6 +11,8 @@ import { RegularText, Title } from "../utilities";
 
 const doneImage = require("../../assets/personalizationComplete.png");
 
+const doneImage = require("../../assets/personalizationComplete.png");
+
 const Container = styled.View`
   justify-content: center;
   align-items: center;

@@ -259,6 +259,7 @@ const Lesson = ({ route }) => {
           )}
         </MainContentContainerWithPadding>
       )}
+
     </Container>
   );
 };
