@@ -20,24 +20,6 @@ const Subtitle = styled(RegularText)`
   margin-bottom: 32px;
 `;
 
-// const content = [
-//   {
-//     title: "Ваша сфера деятельности",
-//     subtitle: "Выберите область, которая вам интересна (можно выбрать несколько сфер)",
-//     options: ["Фитнес", "Ресторанный бизнес", "Туризм", "Пока не знаю"],
-//   },
-//   {
-//     title: "Ваша позиция",
-//     subtitle: "Выберите вашу роль в бизнесе",
-//     options: ["Рядовой сотрудник", "Руководитель", "Собственник бизнеса", "Спикер"],
-//   },
-//   {
-//     title: "Ваши ожидания от обучения",
-//     subtitle: "Укажите ваши цели (можно выбрать несколько)",
-//     options: ["Повысить уровень компетенций", "Получить повышение", "Увеличить прибыль", "Открыть свое дело", "Масштабировать бизнес"],
-//   },
-// ];
-
 interface ChoiceProps {
   screen: number;
   multiple: boolean;
@@ -81,7 +63,6 @@ const Quiz = ({ route }) => {
   const [screen, setScreen] = useState(0);
 
   const data = route.params;
-  console.log("data", data);
   const [content, setContent] = useState<QuizSection[]>([]);
 
   const [occupation, setOccupation] = useState<string[]>([]);
@@ -89,14 +70,12 @@ const Quiz = ({ route }) => {
   const [anticipations, setAnticipations] = useState<string[]>([]);
 
   const navigation = useAppNavigation();
-  const dispatch = useAppDispatch();
 
   useEffect(() => {
     (async () => {
       try {
         const res = await axiosQuery({ url: "/quiz-options-categories", noAuth: true });
         setContent(res.data);
-        console.log("res", res.data);
       } catch (e) {
         console.log("e.response.data.message", e.response.data.message);
       }
@@ -105,10 +84,6 @@ const Quiz = ({ route }) => {
 
   const handleForwardPress = async () => {
     if (screen === 2) {
-      console.log("occupation", occupation);
-      console.log("position", position);
-      console.log("anticipations", anticipations);
-
       navigation.navigate(Screens.Personalization, { ...data, occupation, position: position[0], anticipations });
     } else {
       setScreen((prev) => prev + 1);

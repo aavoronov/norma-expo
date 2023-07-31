@@ -30,7 +30,8 @@
     "react-native-svg": "13.4.0",
     "react-native-table-component": "github:slice312/react-native-table-component",
     "react-redux": "^8.1.1",
-    "styled-components": "^6.0.0"
+    "styled-components": "^6.0.0",
+    "expo-intent-launcher": "~10.5.2"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",

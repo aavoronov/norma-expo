@@ -3,7 +3,7 @@ import { Text, View } from "react-native";
 import { styled } from "styled-components/native";
 import ButtonPrimary from "../components/ButtonPrimary";
 import ButtonSecondary from "../components/ButtonSecondary";
-import { useAppDispatch } from "../hooks";
+import { useAppDispatch, useAppNavigation } from "../hooks";
 import { countVisit } from "../store/visitSlice";
 import { THEME } from "../theme";
 import { RegularText, Title } from "../utilities";
@@ -18,6 +18,7 @@ const Subtitle = styled(RegularText)`
 
 const CreateAccount = (): JSX.Element => {
   const dispatch = useAppDispatch();
+  const navigation = useAppNavigation();
   return (
     <>
       <Title style={{ marginBottom: 24, fontSize: 24 }}>Создайте аккаунт</Title>
@@ -25,8 +26,8 @@ const CreateAccount = (): JSX.Element => {
       <ButtonPrimary
         text='Регистрация'
         onPress={async () => {
-          dispatch(countVisit({ hasVisited: true }));
-          await AsyncStorage.setItem("hasVisited", "1");
+          dispatch(countVisit({ hasVisited: "signUp" }));
+          await AsyncStorage.setItem("hasVisited", "signUp");
         }}
         style={{ marginBottom: 39 }}
       />
@@ -45,7 +46,7 @@ const CreateAccount = (): JSX.Element => {
         <ButtonSecondary
           text='Войти'
           onPress={async () => {
-            dispatch(countVisit({ hasVisited: true }));
+            dispatch(countVisit({ hasVisited: "1" }));
             await AsyncStorage.setItem("hasVisited", "1");
           }}
           style={{ width: "auto" }}

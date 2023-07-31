@@ -1,5 +1,5 @@
 import axios from "axios";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { Keyboard, Text, TextInput, TouchableWithoutFeedback, View } from "react-native";
 import { styled } from "styled-components/native";
@@ -8,9 +8,11 @@ import ButtonPrimary from "../components/ButtonPrimary";
 import ButtonSecondary from "../components/ButtonSecondary";
 import CheckboxItem from "../components/CheckboxItem";
 import TextField from "../components/TextField";
-import { useAppDispatch, useAppNavigation } from "../hooks";
+import { useAppDispatch, useAppNavigation, useAppSelector } from "../hooks";
 import useBackButton from "../hooks/useBackButton";
 import { THEME } from "../theme";
+import { countVisit } from "../store/visitSlice";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const FormHeader = styled.Text`
   font-size: 22px;
@@ -42,9 +44,19 @@ export default function SignUp() {
   const [secure, setSecure] = useState(true);
   const [agreement, setAgreement] = useState(false);
   const [promo, setPromo] = useState(false);
+  const hasVisited = useAppSelector((state) => state.visit.hasVisited);
+  const dispatch = useAppDispatch();
+
+  useEffect(() => {
+    (async () => {
+      if (hasVisited === "signUp") {
+        dispatch(countVisit({ hasVisited: "1" }));
+        await AsyncStorage.setItem("hasVisited", "1");
+      }
+    })();
+  }, []);
 
   const navigation = useAppNavigation();
-  const dispatch = useAppDispatch();
 
   const defaultValues = {
     name: "",
@@ -67,9 +79,9 @@ export default function SignUp() {
     try {
       const res = await axios.post(`${THEME.API_URL}/users/check`, data);
       if (res) {
-        console.log("res", JSON.stringify(res));
         navigation.navigate(Screens.Quiz, {
           ...data,
+          name: data.name.trim(),
           promoAgreement: promo,
         });
       }
@@ -129,7 +141,7 @@ export default function SignUp() {
             }}
             render={({ field: { onChange, onBlur, value } }) => (
               <TextField
-                value={value}
+                value={value.trim()}
                 onBlur={onBlur}
                 setValue={onChange}
                 placeholder='Адрес электронной почты'
@@ -159,7 +171,7 @@ export default function SignUp() {
             }}
             render={({ field: { onChange, onBlur, value } }) => (
               <TextField
-                value={value}
+                value={value.trim()}
                 onBlur={onBlur}
                 setValue={onChange}
                 placeholder='Пароль'
@@ -191,7 +203,7 @@ export default function SignUp() {
             }}
             render={({ field: { onChange, onBlur, value } }) => (
               <TextField
-                value={value}
+                value={value.trim()}
                 onBlur={onBlur}
                 setValue={onChange}
                 placeholder='Повторите пароль'

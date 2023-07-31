@@ -26,7 +26,7 @@ const DeleteAccount = () => {
     <>
       <Title style={{ marginBottom: 16 }}>Удалить аккаунт?</Title>
       <RegularText style={{ textAlign: "center", marginBottom: 32, lineHeight: 22, width: "80%" }}>
-        Отменить действие невозможно. Вы потеряете доступ к вашей подписке и избранным урокам
+        Отменить действие невозможно. Вы потеряете доступ к вашей подписке и избранным урокам
       </RegularText>
       <ButtonPrimary text='Да' onPress={handlePress} style={{ marginBottom: 36 }} />
       <TouchableOpacity onPress={() => navigation.goBack()}>

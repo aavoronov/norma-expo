@@ -2,11 +2,9 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { View } from "react-native";
 import { styled } from "styled-components/native";
 import ButtonPrimary from "../components/ButtonPrimary";
-import { courseContent } from "../components/data";
 import { useAppDispatch } from "../hooks";
 import useBackButton from "../hooks/useBackButton";
-import { resetFaves, setFaves } from "../store/favesSlice";
-import { resetUser, updateProfile } from "../store/userSlice";
+import { resetUser } from "../store/userSlice";
 import { countVisit } from "../store/visitSlice";
 
 const ButtonPrimaryWMargin = styled(ButtonPrimary)`
@@ -21,10 +19,6 @@ const TestFunctionalityTemp = () => {
   return (
     <View>
       <ButtonPrimaryWMargin
-        text='Просрочить подписку'
-        onPress={() => dispatch(updateProfile({ subscriptionThrough: expiredDate.toISOString() }))}
-      />
-      <ButtonPrimaryWMargin
         text='Выйти'
         onPress={async () => {
           dispatch(resetUser());
@@ -33,14 +27,13 @@ const TestFunctionalityTemp = () => {
       />
       <ButtonPrimaryWMargin
         text='Выйти и сбросить посещение'
-        onPress={() => {
+        onPress={async () => {
           dispatch(resetUser());
+          await AsyncStorage.removeItem("norma-token");
           dispatch(countVisit({ visited: false }));
+          await AsyncStorage.removeItem("hasVisited");
         }}
       />
-      <ButtonPrimaryWMargin text='Наполнить избранное' onPress={() => dispatch(setFaves(courseContent.lessons))} />
-      <ButtonPrimaryWMargin text='Очистить избранное' onPress={() => dispatch(resetFaves())} />
-      <ButtonPrimaryWMargin text='Подтвердить аккаунт' onPress={() => dispatch(updateProfile({ emailConfirmed: true }))} />
     </View>
   );
 };

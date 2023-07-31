@@ -142,7 +142,7 @@ export const getSubscriptionExpiryDate = (dateString: string) => {
 };
 
 export const subscriptionText = (subscriptionThrough: string) => {
-  let text = "Оформите подписку и получите доступ ко всем урокам";
+  let text = "Оформите подписку и получите доступ ко всем урокам";
 
   if (!!subscriptionThrough) {
     const expirationDateText = getSubscriptionExpiryDate(subscriptionThrough);
@@ -195,7 +195,6 @@ export const axiosConfig = async ({ url, payload, noAuth, method }: AxiosConfigP
 export class AxiosConfig {
   static async createAsync({ method = "get", url, noAuth = false, payload }: AxiosConfigProps) {
     const authorization = !noAuth ? await AsyncStorage.getItem("norma-token") : void 0;
-    console.log("instance", new AxiosConfig({ url, payload, authorization, method }));
     return new AxiosConfig({ url, payload, authorization, method });
   }
 
@@ -225,5 +224,6 @@ export const axiosQuery = async ({ method, url, noAuth, payload }: AxiosConfigPr
     return res;
   } catch (e) {
     console.log("e", e.response.data.message);
+    throw new Error(e.response.data.message);
   }
 };

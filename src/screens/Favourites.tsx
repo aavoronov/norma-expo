@@ -1,11 +1,11 @@
-import { Text, TouchableOpacity, View } from "react-native";
+import { ImageBackground, Text, TouchableOpacity, View } from "react-native";
 import { styled } from "styled-components/native";
 import { Screens } from "../Screens";
 import { CoursePreview, LockSmall } from "../components/svgs";
 import { useAppNavigation, useAppSelector } from "../hooks";
 import useBackButton from "../hooks/useBackButton";
 import { THEME } from "../theme";
-import { Title, videoLength } from "../utilities";
+import { Title, checkSubscriptionValidity, videoLength } from "../utilities";
 
 const Container = styled.ScrollView`
   width: 100%;
@@ -16,23 +16,22 @@ const Container = styled.ScrollView`
 
 interface Lesson {
   id: number;
-  order: number;
   isPaid: boolean;
   title: string;
   duration: number;
-  files:
-    | {
-        title: string;
-        link: string;
-      }[]
-    | [];
+  preview?: {
+    url: string;
+  };
 }
 
 // const lessons = courseContent.lessons;
 
 const LessonThumb = ({ lesson }: { lesson: Lesson }) => {
-  const { id, order, isPaid, title, duration } = lesson;
+  const { id, isPaid, title, duration, preview } = lesson;
   const navigation = useAppNavigation();
+  const subscriptionThrough = useAppSelector((state) => state.user.subscriptionThrough);
+  const hasAccess = checkSubscriptionValidity(subscriptionThrough) || !isPaid;
+  const noAccess = !hasAccess;
   // const checkForPaidAction = usePaidAction();
 
   // const handlePress = () => {
@@ -52,29 +51,70 @@ const LessonThumb = ({ lesson }: { lesson: Lesson }) => {
             width: 150,
             height: 84,
             borderRadius: 12,
-            alignItems: isPaid ? "center" : "flex-end",
-            justifyContent: isPaid ? "center" : "space-between",
+            // alignItems: "flex-end",
+            // justifyContent: "space-between",
+            alignItems: !preview?.url && !noAccess ? "flex-end" : "center",
+            justifyContent: !preview?.url && !noAccess ? "space-between" : "center",
+            // justifyContent: "center",
             flexDirection: "row",
-            paddingTop: 13,
-            paddingLeft: 21,
-            padding: 8,
+            overflow: "hidden",
+            marginBottom: 12,
             marginRight: 12,
           },
-          isPaid && { paddingTop: 0, paddingLeft: 0, padding: 0 },
+          !preview?.url &&
+            !noAccess && {
+              paddingTop: 13,
+              paddingLeft: 21,
+              padding: 8,
+            },
         ]}>
-        {isPaid ? (
-          <LockSmall />
+        {!!preview?.url ? (
+          <ImageBackground
+            source={{ uri: `${THEME.API_URL}/uploads/previews/${preview.url}` }}
+            resizeMode='cover'
+            style={{ display: "flex", width: 150, height: 84, borderRadius: 12, overflow: "hidden" }}>
+            {!noAccess && (
+              <Text style={{ fontFamily: THEME.FONTS.SFProText500, fontSize: 9, position: "absolute", bottom: 8, right: 8 }}>
+                {videoLength(duration)}
+              </Text>
+            )}
+            {noAccess && (
+              <View
+                style={{
+                  width: "100%",
+                  height: "100%",
+                  position: "absolute",
+                  backgroundColor: "#000000a0",
+                  justifyContent: "center",
+                  alignItems: "center",
+                }}>
+                <LockSmall />
+              </View>
+            )}
+          </ImageBackground>
         ) : (
           <>
             <View style={{ marginBottom: 5 }}>
               <CoursePreview />
             </View>
-            <Text style={{ fontFamily: THEME.FONTS.SFProText500, fontSize: 9 }}>{videoLength(duration)}</Text>
+            {noAccess && (
+              <View
+                style={{
+                  width: "100%",
+                  height: "100%",
+                  position: "absolute",
+                  backgroundColor: "#000000a0",
+                  justifyContent: "center",
+                  alignItems: "center",
+                }}>
+                <LockSmall />
+              </View>
+            )}
+            {!noAccess && <Text style={{ fontFamily: THEME.FONTS.SFProText500, fontSize: 9 }}>{videoLength(duration)}</Text>}
           </>
         )}
       </View>
       <View style={{ justifyContent: "flex-start", flex: 1 }}>
-        <Text style={{ fontFamily: THEME.FONTS.SFProText500, fontSize: 12, color: THEME.BLACKISH_2D2D31 }}>Урок {order}</Text>
         <Text style={{ fontFamily: THEME.FONTS.SFProText500, fontSize: 12, color: THEME.BLACKISH_2D2D31 }}>{title}</Text>
       </View>
     </TouchableOpacity>
@@ -87,10 +127,6 @@ const Favourites = () => {
   return (
     <Container>
       <Title style={{ textAlign: "left", fontSize: 24, marginBottom: 24 }}>Избранное</Title>
-      {!!faves.length &&
-        faves.map((item) => {
-          return <LessonThumb lesson={item} key={item.id} />;
-        })}
       {!!faves.length &&
         faves.map((item) => {
           return <LessonThumb lesson={item} key={item.id} />;

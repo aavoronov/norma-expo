@@ -7,7 +7,7 @@ import { styled } from "styled-components/native";
 import { useAppDispatch } from "../hooks";
 import { updateProfile } from "../store/userSlice";
 import { THEME } from "../theme";
-import { RegularText, Title, axiosQuery } from "../utilities";
+import { RegularText, Title } from "../utilities";
 
 const doneImage = require("../../assets/personalizationComplete.png");
 
@@ -53,7 +53,7 @@ const Personalization = ({ route }): JSX.Element => {
         setProgress((prev) => prev + 1);
       }
       if (progress === 100) setComplete(true);
-    }, 10);
+    }, 40);
 
     return () => clearInterval(timeout);
   }, [progress]);
@@ -62,10 +62,6 @@ const Personalization = ({ route }): JSX.Element => {
     try {
       const res = await axios.post(`${THEME.API_URL}/users`, data);
       if (res.status === 201) {
-        console.log("res", res);
-        console.log("res.status", res.status);
-        console.log("res.data", res.data);
-
         setUserData(res.data);
       }
     } catch (e) {
@@ -78,7 +74,7 @@ const Personalization = ({ route }): JSX.Element => {
       updateProfile({
         name: userData.user.name,
         subscriptionThrough: userData.user.subscriptionThrough,
-        role: userData.user.role,
+        role: "user",
         email: userData.user.email,
         subscriptionCancelled: userData.user.subscriptionCancelled,
         emailConfirmed: userData.user.emailConfirmed,
@@ -92,9 +88,6 @@ const Personalization = ({ route }): JSX.Element => {
   }, []);
 
   useEffect(() => {
-    // if (complete) setTimeout(() => dispatch(updateRole({ role: "user" })), 2000);
-    if (complete) console.log("complete");
-    else console.log("incomplete");
     if (complete)
       setTimeout(() => {
         console.log("userData", userData);

@@ -3,7 +3,6 @@ import { Text, TouchableOpacity, View } from "react-native";
 import { styled } from "styled-components/native";
 import ButtonPrimary from "../components/ButtonPrimary";
 import ButtonSecondary from "../components/ButtonSecondary";
-import { subscriptionData } from "../components/data";
 import { useAppDispatch, useAppNavigation, useAppSelector } from "../hooks";
 import useBackButton from "../hooks/useBackButton";
 import { updateProfile } from "../store/userSlice";
@@ -19,19 +18,20 @@ const Container = styled.View`
 interface SubscriptionData {
   id: number;
   term: number;
+  humanFriendlyTerm: string;
   price: number;
   isPopular: boolean;
   isGoodOffer: boolean;
 }
 
-const Modifier = ({ isPopular }: Partial<SubscriptionData>) => {
+const Modifier = ({ isGoodOffer }: Partial<SubscriptionData>) => {
   return (
     <View
       style={{
         position: "absolute",
         top: 0,
         right: 0,
-        backgroundColor: isPopular ? THEME.BLACKISH_2D2D31 : THEME.MAIN_RED,
+        backgroundColor: isGoodOffer ? THEME.MAIN_RED : THEME.BLACKISH_2D2D31,
         // paddingVertical: 4,
         height: 26,
         width: 94,
@@ -40,7 +40,7 @@ const Modifier = ({ isPopular }: Partial<SubscriptionData>) => {
         justifyContent: "center",
       }}>
       <Text style={{ color: "#fff", fontFamily: THEME.FONTS.SFProText400, lineHeight: 26, fontSize: 12 }}>
-        {isPopular ? "Популярно" : "Выгодно"}
+        {isGoodOffer ? "Выгодно" : "Популярно"}
       </Text>
     </View>
   );
@@ -56,6 +56,8 @@ const SubscriptionPlans = ({ data, plan, setPlan }: { data: SubscriptionData[]; 
         const months = item.term / 30;
         const perMonth = Math.round(item.price / months);
         const economy = Math.round(basePrice * months - item.price);
+
+        const displayTerm = item.humanFriendlyTerm ? item.humanFriendlyTerm : `${item.term} дней`;
 
         const description = `${sumToLocale(perMonth)} ₽ в месяц, экономия ${sumToLocale(economy)} ₽`;
         return (
@@ -96,11 +98,11 @@ const SubscriptionPlans = ({ data, plan, setPlan }: { data: SubscriptionData[]; 
             </View>
             <View style={{ alignItems: "flex-start" }}>
               <Title style={{ fontSize: 18 }}>
-                {sumToLocale(item.price)} ₽ на {item.term} дней
+                {sumToLocale(item.price)} ₽ на {displayTerm}
               </Title>
               {index !== 0 && <RegularText style={{ marginTop: 6, color: THEME.BLACKISH_2D2D31 }}>{description}</RegularText>}
             </View>
-            {(item.isPopular || item.isGoodOffer) && <Modifier isPopular={item.isPopular} />}
+            {(item.isPopular || item.isGoodOffer) && <Modifier isGoodOffer={item.isGoodOffer} />}
           </TouchableOpacity>
         );
       })}
@@ -152,7 +154,7 @@ const Subscription = () => {
         console.log(e.response.message.data);
       }
     })();
-  }, [subscriptionData]);
+  }, []);
 
   const handleSubmit = async () => {
     const selectedPlan = plansData.find((item) => item.id === plan);
@@ -164,7 +166,6 @@ const Subscription = () => {
 
     try {
       const res = await axiosQuery({ method: "post", url: "/users/subscribe", payload: { id: plan } });
-      console.log("res.data", res.data);
       dispatch(updateProfile({ subscriptionThrough: res.data.date, subscriptionCancelled: false }));
       navigation.goBack();
     } catch (e) {

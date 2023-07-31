@@ -47,22 +47,19 @@ export default function SignIn() {
     clearErrors,
     getValues,
     watch,
-    formState: { isDirty, errors },
+    formState: { errors },
   } = useForm({ defaultValues, mode: "onChange" });
   const watchAllFields = watch();
 
   const onSubmit = async (data: typeof defaultValues) => {
-    console.log("data", JSON.stringify(data));
-    // navigation.navigate("Quiz");
-
     try {
-      const res = await axios.post(`${THEME.API_URL}/users/auth`, { ...data });
-      console.log("res", res);
+      const res = await axios.post(`${THEME.API_URL}/users/auth`, data);
       dispatch(
         updateProfile({
           name: res.data.user.name,
           subscriptionThrough: res.data.user.subscriptionThrough,
-          role: res.data.user.role,
+          // role: res.data.user.role,
+          role: "user",
           email: res.data.user.email,
           subscriptionCancelled: res.data.user.subscriptionCancelled,
           emailConfirmed: res.data.user.emailConfirmed,
@@ -74,37 +71,11 @@ export default function SignIn() {
       setError("email", { type: "manual", message: "" });
       setError("password", { type: "manual", message: e.response.data.message });
     }
-
-    // dispatch(updateRole({ role: "user" }));
-    // await AsyncStorage.setItem("role", "user");
   };
 
   useBackButton();
 
-  // const dispatch = useAppDispatch();
-  // const signUpHandler = async (values) => {
-  //   try {
-  //     const res = await axios.post(`${THEME.API_URL}/users/`, { ...values });
-
-  //     // setModal(false);
-  //     setEmail("");
-  //     setPassword("");
-  //     setPasswordRepeat("");
-  //     navigation.navigate("SignInByEmail");
-  //     dispatch(toggle({ text: "Аккаунт создан. Проверьте почту", type: "success" }));
-  //   } catch (e) {
-  //     dispatch(toggle({ text: e.response?.data?.message ?? e.message, type: "error" }));
-  //     // console.log(e);
-  //   }
-  // };
-
   const ref_input2 = useRef<TextInput>(null);
-
-  const clearNoAccountFoundError = () => {
-    if (errors.email && errors.email.message === "") {
-      clearErrors(["email", "password"]);
-    }
-  };
 
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
@@ -125,7 +96,7 @@ export default function SignIn() {
               }}
               render={({ field: { onChange, onBlur, value } }) => (
                 <TextField
-                  value={value}
+                  value={value.trim()}
                   onBlur={onBlur}
                   setValue={(value: string) => {
                     onChange(value);
@@ -151,7 +122,7 @@ export default function SignIn() {
               }}
               render={({ field: { onChange, onBlur, value } }) => (
                 <TextField
-                  value={value}
+                  value={value.trim()}
                   onBlur={onBlur}
                   setValue={(value: string) => {
                     onChange(value);

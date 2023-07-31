@@ -28,12 +28,12 @@ export const Layout = ({ children, style }: { children: JSX.Element; style?: {} 
             Authorization: token,
           },
         });
-        console.log("layout res", res.data);
         dispatch(
           updateProfile({
             name: res.data.name,
             subscriptionThrough: res.data.subscriptionThrough,
-            role: res.data.role,
+            // role: res.data.role,
+            role: "user",
             email: res.data.email,
             subscriptionCancelled: res.data.subscriptionCancelled,
             emailConfirmed: res.data.emailConfirmed,

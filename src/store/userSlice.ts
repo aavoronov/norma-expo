@@ -27,8 +27,6 @@ const userSlice = createSlice({
     },
 
     updateProfile(state, action: { type: string; payload: Partial<UserState> }) {
-      console.log("state", state);
-      console.log("action", action);
       return { ...state, ...action.payload };
     },
     resetUser: () => initialState,

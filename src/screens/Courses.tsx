@@ -1,13 +1,11 @@
-import { useState } from "react";
-import { ScrollView, Text, TouchableOpacity, View } from "react-native";
+import { useEffect, useState } from "react";
+import { ImageBackground, ScrollView, Text, TouchableOpacity, View } from "react-native";
 import { styled } from "styled-components/native";
+import { Screens } from "../Screens";
+import { CoursePreview } from "../components/svgs";
 import { useAppNavigation, useAppSelector } from "../hooks";
 import { THEME } from "../theme";
 import { RegularText, SetState, Title, axiosQuery, videoLength } from "../utilities";
-// import { coursesData } from "../components/data";
-import { useEffect } from "react";
-import { Screens } from "../Screens";
-import { CoursePreview } from "../components/svgs";
 
 type ActivityTypes = "fitness" | "restaurants" | "tourism";
 
@@ -16,12 +14,17 @@ interface Filter {
   title: string;
 }
 
+interface Preview {
+  url: string;
+}
+
 interface StandaloneLesson {
   id: number;
   title: string;
   duration: number;
   createdAt: string;
   filterId: number;
+  preview?: Preview;
 }
 
 type CourseLesson = Omit<StandaloneLesson, "filterId">[];
@@ -31,6 +34,7 @@ interface Course {
   title: string;
   filterId: number;
   createdAt: string;
+  preview?: Preview;
   lessons: CourseLesson[];
 }
 interface Section {
@@ -48,7 +52,7 @@ const Container = styled.ScrollView`
 const CourseThumb = ({ course }: { course: StandaloneLesson | Course }) => {
   const { duration } = course as StandaloneLesson;
   const { lessons } = course as Course;
-  const { id, title, createdAt, filterId } = course;
+  const { id, title, createdAt, filterId, preview } = course;
 
   const navigation = useAppNavigation();
 
@@ -75,24 +79,34 @@ const CourseThumb = ({ course }: { course: StandaloneLesson | Course }) => {
           isStandaloneLessonRatherThanCourse ? { name: Screens.Lesson, params: { id: id } } : { name: Screens.Course, params: { id: id } }
         )
       }>
-      <View
-        style={{
-          backgroundColor: THEME.WHITISH_F2F3F8,
-          borderRadius: 12,
-          alignItems: "flex-end",
-          justifyContent: "space-between",
-          flexDirection: "row",
-          paddingTop: 13,
-          paddingLeft: 21,
-          padding: 8,
-          marginBottom: 12,
-        }}>
-        {/* <Image source={require("../../assets/coursePreview.png")} style={{ marginBottom: 5 }} /> */}
-        <View style={{ marginBottom: 5 }}>
-          <CoursePreview />
+      {!!preview?.url ? (
+        <ImageBackground
+          source={{ uri: `${THEME.API_URL}/uploads/previews/${preview.url}` }}
+          resizeMode='cover'
+          style={{ display: "flex", width: "100%", height: 82, marginBottom: 12, borderRadius: 12, overflow: "hidden" }}>
+          <Text style={{ fontFamily: THEME.FONTS.SFProText500, fontSize: 9, position: "absolute", bottom: 8, right: 8 }}>{timelapse}</Text>
+        </ImageBackground>
+      ) : (
+        <View
+          style={{
+            backgroundColor: THEME.WHITISH_F2F3F8,
+            borderRadius: 12,
+            alignItems: "flex-end",
+            justifyContent: "space-between",
+            flexDirection: "row",
+            overflow: "hidden",
+            paddingTop: 13,
+            paddingLeft: 21,
+            padding: 8,
+            marginBottom: 12,
+          }}>
+          <View style={{ marginBottom: 5 }}>
+            <CoursePreview />
+          </View>
+          <Text style={{ fontFamily: THEME.FONTS.SFProText500, fontSize: 9 }}>{timelapse}</Text>
         </View>
-        <Text style={{ fontFamily: THEME.FONTS.SFProText500, fontSize: 9 }}>{timelapse}</Text>
-      </View>
+      )}
+
       <Text style={{ fontFamily: THEME.FONTS.SFProText500, fontSize: 12, color: THEME.BLACKISH_2D2D31 }}>{maybeShortenTitle(title)}</Text>
     </TouchableOpacity>
   );
@@ -174,10 +188,11 @@ const Courses = () => {
 
   return (
     <Container>
-      <Title style={{ textAlign: "left", marginTop: 50, marginBottom: 12 }}>{`Здравствуйте, ${userName}!`}</Title>
+      <Title style={{ textAlign: "left", marginTop: 50, marginBottom: 12, fontSize: 24 }}>{`Здравствуйте, ${userName}!`}</Title>
       <RegularText style={{ marginBottom: 32 }}>Давайте приступим к обучению</RegularText>
-      <Filter filtersData={filtersData} filter={filter} setFilter={setFilter} />
-      {!!coursesData.length &&
+      {!!filtersData.length && <Filter filtersData={filtersData} filter={filter} setFilter={setFilter} />}
+      {!!filter &&
+        !!coursesData.length &&
         coursesData.map((item: Section) => {
           return <SingleCategory singleCategory={item} key={item.id} filter={filter} />;
         })}

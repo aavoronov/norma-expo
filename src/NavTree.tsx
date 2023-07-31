@@ -209,6 +209,64 @@ const ProfileStackScreen = () => {
   );
 };
 
+const UnauthorizedStack = createNativeStackNavigator();
+
+const UnauthorizedScreen = () => {
+  const hasVisited = useAppSelector((state) => state.visit.hasVisited);
+  return (
+    <UnauthorizedStack.Navigator
+      screenOptions={{
+        headerTransparent: true,
+        headerShown: true,
+      }}
+      initialRouteName={hasVisited === "signUp" ? Screens.SignUp : Screens.SignIn}>
+      <UnauthorizedStack.Screen name={Screens.SignIn} options={{ title: "" }}>
+        {() => (
+          <Layout>
+            <SignIn />
+          </Layout>
+        )}
+      </UnauthorizedStack.Screen>
+      <UnauthorizedStack.Screen name={Screens.SignUp} options={{ title: "" }}>
+        {() => (
+          <Layout>
+            <SignUp />
+          </Layout>
+        )}
+      </UnauthorizedStack.Screen>
+      <UnauthorizedStack.Screen name={Screens.PasswordReset} options={{ title: "" }}>
+        {() => (
+          <Layout>
+            <PasswordReset />
+          </Layout>
+        )}
+      </UnauthorizedStack.Screen>
+      <UnauthorizedStack.Screen name={Screens.MailSent} options={{ title: "" }}>
+        {() => (
+          <Layout>
+            <MailSent />
+          </Layout>
+        )}
+      </UnauthorizedStack.Screen>
+
+      <UnauthorizedStack.Screen name={Screens.Quiz} options={{ title: "", headerShown: false }}>
+        {({ route }) => (
+          <Layout>
+            <Quiz route={route} />
+          </Layout>
+        )}
+      </UnauthorizedStack.Screen>
+      <UnauthorizedStack.Screen name={Screens.Personalization} options={{ title: "Персонализация", headerShown: false }}>
+        {({ route }) => (
+          <Layout>
+            <Personalization route={route} />
+          </Layout>
+        )}
+      </UnauthorizedStack.Screen>
+    </UnauthorizedStack.Navigator>
+  );
+};
+
 export default function NavTree() {
   const [fontsLoaded] = useFonts({
     SFProText400: require("../assets/fonts/SF-Pro-Text-Regular.otf"),
@@ -226,8 +284,6 @@ export default function NavTree() {
   useEffect(() => {
     (async () => {
       const visited = await AsyncStorage.getItem("hasVisited");
-      console.log(visited);
-
       dispatch(countVisit({ hasVisited: !!visited }));
     })();
   }, []);
@@ -285,55 +341,14 @@ export default function NavTree() {
           </Stack.Group>
         )}
         {hasVisited && !role && (
-          <Stack.Group
-            screenOptions={{
+          <Stack.Screen
+            options={{
               headerTransparent: true,
-              headerShown: true,
-            }}>
-            <Stack.Screen name={Screens.SignIn} options={{ title: "" }}>
-              {() => (
-                <Layout>
-                  <SignIn />
-                </Layout>
-              )}
-            </Stack.Screen>
-            <Stack.Screen name={Screens.SignUp} options={{ title: "" }}>
-              {() => (
-                <Layout>
-                  <SignUp />
-                </Layout>
-              )}
-            </Stack.Screen>
-            <Stack.Screen name={Screens.PasswordReset} options={{ title: "" }}>
-              {() => (
-                <Layout>
-                  <PasswordReset />
-                </Layout>
-              )}
-            </Stack.Screen>
-            <Stack.Screen name={Screens.MailSent} options={{ title: "" }}>
-              {() => (
-                <Layout>
-                  <MailSent />
-                </Layout>
-              )}
-            </Stack.Screen>
-
-            <Stack.Screen name={Screens.Quiz} options={{ title: "", headerShown: false }}>
-              {({ route }) => (
-                <Layout>
-                  <Quiz route={route} />
-                </Layout>
-              )}
-            </Stack.Screen>
-            <Stack.Screen name={Screens.Personalization} options={{ title: "Персонализация", headerShown: false }}>
-              {({ route }) => (
-                <Layout>
-                  <Personalization route={route} />
-                </Layout>
-              )}
-            </Stack.Screen>
-          </Stack.Group>
+              headerShown: false,
+            }}
+            name={"Screens.Unauthorized"}>
+            {() => <UnauthorizedScreen />}
+          </Stack.Screen>
         )}
         {hasVisited && role === "user" && (
           <Stack.Group

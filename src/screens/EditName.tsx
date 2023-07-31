@@ -40,13 +40,9 @@ const EditName = () => {
   } = useForm({ defaultValues, mode: "onChange", criteriaMode: "all" });
 
   const onSubmit = async (data: typeof defaultValues) => {
-    console.log("data", JSON.stringify(data));
-
     const res = await axios(await AxiosConfig.createAsync({ url: `/users/edit/`, method: "patch", payload: { name: data.name } }));
 
     // const res1 = await axios(await axiosConfig({ url: `/users/edit/`, method: "patch", payload: { name: data.name } }));
-
-    console.log("res", res);
 
     dispatch(updateProfile({ name: data.name }));
     navigation.goBack();

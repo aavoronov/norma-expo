@@ -1,15 +1,15 @@
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useFocusEffect } from "@react-navigation/native";
-import { useCallback } from "react";
-import { ScrollView, Text, TouchableOpacity, View } from "react-native";
+import { useCallback, useEffect } from "react";
+import { ImageBackground, ScrollView, Text, TouchableOpacity, View } from "react-native";
 import { styled } from "styled-components/native";
 import { Screens } from "../Screens";
 import ButtonPrimary from "../components/ButtonPrimary";
-import { Chevron, ChevronGrey, CoursePreview } from "../components/svgs";
+import { Chevron, ChevronGrey, CoursePreview, LockSmall } from "../components/svgs";
 import { useAppDispatch, useAppNavigation, useAppSelector } from "../hooks";
-import { updateProfile, updateRole } from "../store/userSlice";
+import { setFaves } from "../store/favesSlice";
+import { updateProfile } from "../store/userSlice";
 import { THEME } from "../theme";
-import { NavigationProp, RegularText, Title, axiosQuery, subscriptionText, videoLength } from "../utilities";
+import { NavigationProp, RegularText, Title, axiosQuery, checkSubscriptionValidity, subscriptionText, videoLength } from "../utilities";
 
 const Container = styled.ScrollView`
   width: 100%;
@@ -37,7 +37,6 @@ const Account = ({ navigation }: { navigation: NavigationProp }) => {
     try {
       const res = await axiosQuery({ url: "/users/send-verification" });
       navigation.navigate(Screens.CheckYourEmail);
-      console.log("res", res);
     } catch (e) {
       console.log("e", e.response.data.message);
     }
@@ -51,7 +50,7 @@ const Account = ({ navigation }: { navigation: NavigationProp }) => {
     <MainAccountBlocksContainer>
       <Title style={{ textAlign: "left", fontSize: 16 }}>Аккаунт</Title>
       <RegularText style={{ fontSize: 12, lineHeight: 18 }}>
-        {emailConfirmed ? `${userName}\n${email}` : "Ваш аккаунт не подтвержден"}
+        {emailConfirmed ? `${userName}\n${email}` : "Ваш аккаунт не подтвержден"}
       </RegularText>
       <TouchableOpacity style={{ flexDirection: "row", alignItems: "center" }} onPress={handleButtonPress}>
         <Text style={{ fontSize: 12, lineHeight: 13, color: THEME.MAIN_RED, fontFamily: THEME.FONTS.SFProText500 }}>
@@ -86,11 +85,30 @@ const Favourites = ({ navigation }: { navigation: NavigationProp }) => {
   // const lessons = coursesData[1].courses;
   // const lessons = courseContent.lessons;
   const faves = useAppSelector((state) => state.faves);
+  const dispatch = useAppDispatch();
+
+  useEffect(() => {
+    (async () => {
+      if (!faves.length) {
+        try {
+          const res = await axiosQuery({ url: "/favourites" });
+
+          const lessons = res.data.map((item) => item.lesson);
+          dispatch(setFaves(lessons));
+        } catch (e) {
+          console.log(e.response.data.message);
+        }
+      }
+    })();
+  }, []);
 
   const LessonThumb = ({ lesson }) => {
-    const { duration, title } = lesson;
+    const { duration, title, id, preview, isPaid } = lesson;
 
     const navigation = useAppNavigation();
+    const subscriptionThrough = useAppSelector((state) => state.user.subscriptionThrough);
+    const hasAccess = checkSubscriptionValidity(subscriptionThrough) || !isPaid;
+    const noAccess = !hasAccess;
 
     const maybeShortenTitle = (str: string) => {
       if (str.length > 50) return str.slice(0, 50) + "...";
@@ -99,24 +117,78 @@ const Favourites = ({ navigation }: { navigation: NavigationProp }) => {
 
     const timelapse = videoLength(duration);
     return (
-      <TouchableOpacity style={{ width: 150, marginRight: 16 }} onPress={() => navigation.navigate({ name: Screens.Lesson, params: {} })}>
+      <TouchableOpacity
+        style={{ width: 150, marginRight: 16 }}
+        onPress={() => navigation.navigate({ name: Screens.Lesson, params: { id: id } })}>
         <View
-          style={{
-            backgroundColor: THEME.WHITISH_F2F3F8,
-            borderRadius: 12,
-            alignItems: "flex-end",
-            justifyContent: "space-between",
-            flexDirection: "row",
-            paddingTop: 13,
-            paddingLeft: 21,
-            padding: 8,
-            marginBottom: 12,
-          }}>
-          {/* <Image source={require("../../assets/coursePreview.png")} style={{ marginBottom: 5 }} /> */}
-          <View style={{ marginBottom: 5 }}>
-            <CoursePreview />
-          </View>
-          <Text style={{ fontFamily: THEME.FONTS.SFProText500, fontSize: 9 }}>{timelapse}</Text>
+          style={[
+            {
+              backgroundColor: THEME.WHITISH_F2F3F8,
+              width: 150,
+              height: 84,
+              borderRadius: 12,
+              // alignItems: "flex-end",
+              // justifyContent: "space-between",
+              alignItems: !preview?.url && !noAccess ? "flex-end" : "center",
+              justifyContent: !preview?.url && !noAccess ? "space-between" : "center",
+              // justifyContent: "center",
+              flexDirection: "row",
+              overflow: "hidden",
+              marginBottom: 12,
+              marginRight: 12,
+            },
+            !preview?.url &&
+              !noAccess && {
+                paddingTop: 13,
+                paddingLeft: 21,
+                padding: 8,
+              },
+          ]}>
+          {!!preview?.url ? (
+            <ImageBackground
+              source={{ uri: `${THEME.API_URL}/uploads/previews/${preview.url}` }}
+              resizeMode='cover'
+              style={{ display: "flex", width: 150, height: 84, borderRadius: 12, overflow: "hidden" }}>
+              {!noAccess && (
+                <Text style={{ fontFamily: THEME.FONTS.SFProText500, fontSize: 9, position: "absolute", bottom: 8, right: 8 }}>
+                  {videoLength(duration)}
+                </Text>
+              )}
+              {noAccess && (
+                <View
+                  style={{
+                    width: "100%",
+                    height: "100%",
+                    position: "absolute",
+                    backgroundColor: "#000000a0",
+                    justifyContent: "center",
+                    alignItems: "center",
+                  }}>
+                  <LockSmall />
+                </View>
+              )}
+            </ImageBackground>
+          ) : (
+            <>
+              <View style={{ marginBottom: 5 }}>
+                <CoursePreview />
+              </View>
+              {noAccess && (
+                <View
+                  style={{
+                    width: "100%",
+                    height: "100%",
+                    position: "absolute",
+                    backgroundColor: "#000000a0",
+                    justifyContent: "center",
+                    alignItems: "center",
+                  }}>
+                  <LockSmall />
+                </View>
+              )}
+              {!noAccess && <Text style={{ fontFamily: THEME.FONTS.SFProText500, fontSize: 9 }}>{videoLength(duration)}</Text>}
+            </>
+          )}
         </View>
 
         <Text style={{ fontFamily: THEME.FONTS.SFProText500, fontSize: 12, color: THEME.BLACKISH_2D2D31 }}>{maybeShortenTitle(title)}</Text>
@@ -136,7 +208,7 @@ const Favourites = ({ navigation }: { navigation: NavigationProp }) => {
       </View>
       {!!faves.length ? (
         <ScrollView horizontal style={{ paddingBottom: 5 }}>
-          {faves.map((item, index: number) => {
+          {faves.slice(0, 5).map((item, index: number) => {
             return <LessonThumb lesson={item} key={index} />;
           })}
         </ScrollView>
@@ -186,17 +258,11 @@ const Profile = () => {
       (async () => {
         if (!emailConfirmed) {
           const res = await axiosQuery({ url: "/users/reauth" });
-          console.log("res.data", res.data);
-          dispatch(updateProfile(res.data));
+          dispatch(updateProfile({ ...res.data, role: "user" }));
         }
       })();
     }, [])
   );
-
-  const logout = async () => {
-    await AsyncStorage.removeItem("role");
-    dispatch(updateRole({ role: "" }));
-  };
 
   return (
     <Container>
