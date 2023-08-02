@@ -221,12 +221,14 @@ const Course = ({ route }) => {
               ))}
           </Section>
 
-          <Section>
-            <Title style={{ textAlign: "left", marginBottom: 12, fontSize: 18 }}>Файлы курса</Title>
-            {files.map((item: SingleLessonFiles, index: number) => (
-              <Files files={item.files} isPaid={item.isPaid} key={index} />
-            ))}
-          </Section>
+          {!!files.length && (
+            <Section>
+              <Title style={{ textAlign: "left", marginBottom: 12, fontSize: 18 }}>Файлы курса</Title>
+              {files.map((item: SingleLessonFiles, index: number) => (
+                <Files files={item.files} isPaid={item.isPaid} key={index} />
+              ))}
+            </Section>
+          )}
         </MainContentContainerWithPadding>
       )}
     </Container>

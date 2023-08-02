@@ -251,7 +251,7 @@ const Lesson = ({ route }) => {
             </Section>
           )}
 
-          {lessonData.files?.length && (
+          {!!lessonData.files?.length && (
             <Section>
               <Title style={{ textAlign: "left", marginBottom: 12, fontSize: 18 }}>Файлы</Title>
               <Files files={lessonData.files} isPaid={lessonData.isPaid} />
@@ -259,7 +259,6 @@ const Lesson = ({ route }) => {
           )}
         </MainContentContainerWithPadding>
       )}
-
     </Container>
   );
 };

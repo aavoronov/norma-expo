@@ -3,7 +3,7 @@ import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { DefaultTheme, NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { useFonts } from "expo-font";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Screens } from "./Screens";
 import { Layout } from "./components/Layouts";
 import { HomeIconSvg, ProfileIconSvg } from "./components/svgs";
@@ -36,6 +36,8 @@ import Support from "./screens/Support";
 import TestFunctionalityTemp from "./screens/TestFuctionalityTemp";
 import { countVisit } from "./store/visitSlice";
 import { THEME } from "./theme";
+import { updateProfile } from "./store/userSlice";
+import axios from "axios";
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -62,6 +64,7 @@ const HomeStack = createNativeStackNavigator();
 const HomeStackScreen = () => {
   // const bottomTabBarHeight = useBottomTabBarHeight();
   // console.log(bottomTabBarHeight);
+
   return (
     <HomeStack.Navigator
       screenOptions={{
@@ -281,6 +284,35 @@ export default function NavTree() {
   const hasVisited = useAppSelector((state) => state.visit.hasVisited);
   const dispatch = useAppDispatch();
 
+  const role = useAppSelector((state) => state.user.role);
+
+  const [hasLoaded, setHasLoaded] = useState(false);
+  const reauthorize = async () => {
+    const token = await AsyncStorage.getItem("norma-token");
+    if (token)
+      try {
+        const res = await axios.get(`${THEME.API_URL}/users/reauth`, {
+          headers: {
+            Authorization: token,
+          },
+        });
+        dispatch(
+          updateProfile({
+            name: res.data.name,
+            subscriptionThrough: res.data.subscriptionThrough,
+            // role: res.data.role,
+            role: "user",
+            email: res.data.email,
+            subscriptionCancelled: res.data.subscriptionCancelled,
+            emailConfirmed: res.data.emailConfirmed,
+          })
+        );
+      } catch (e) {
+        console.log(e.response.data.message);
+      }
+    setHasLoaded(true);
+  };
+
   useEffect(() => {
     (async () => {
       const visited = await AsyncStorage.getItem("hasVisited");
@@ -288,100 +320,106 @@ export default function NavTree() {
     })();
   }, []);
 
-  const role = useAppSelector((state) => state.user.role);
+  useEffect(() => {
+    if (!role) {
+      reauthorize();
+    }
+  }, [role]);
 
   if (!fontsLoaded) {
     return null;
   }
 
   return (
-    <NavigationContainer theme={MyTheme}>
-      <Stack.Navigator
-        initialRouteName={Screens.Onboarding}
-        screenOptions={{
-          headerTitleAlign: "center",
-          headerBackTitle: null,
-          headerBackTitleVisible: false,
-          // headerBackImage: () => <BackButton />,
-          headerStyle: {
-            backgroundColor: "#fff",
-            // borderWidth: 0
-            // position: "absolute",
-          },
-          headerShadowVisible: false,
-          headerTintColor: "#000",
-          headerTitleStyle: { fontSize: 16, fontWeight: "500" },
-          // headerBackImageSource: require("../assets/backIcon.png"),
-          // headerRight: () => <Text onPress={() => alert("This is a button!")}></Text>,
-          // headerLeft: () => (
-          //   <TouchableOpacity>
-          //     <Image source={require("../assets/backIcon.png")} style={{ width: 24, height: 24 }} />
-          //   </TouchableOpacity>
-          // ),
-        }}>
-        {!hasVisited && (
-          <Stack.Group
-            screenOptions={{
-              headerShown: false,
-            }}>
-            <Stack.Screen name={Screens.Onboarding} options={{ title: "Онбординг" }}>
-              {() => (
-                <Layout>
-                  <Onboarding />
-                </Layout>
-              )}
+    hasLoaded && (
+      <NavigationContainer theme={MyTheme}>
+        <Stack.Navigator
+          initialRouteName={Screens.Onboarding}
+          screenOptions={{
+            headerTitleAlign: "center",
+            headerBackTitle: null,
+            headerBackTitleVisible: false,
+            // headerBackImage: () => <BackButton />,
+            headerStyle: {
+              backgroundColor: "#fff",
+              // borderWidth: 0
+              // position: "absolute",
+            },
+            headerShadowVisible: false,
+            headerTintColor: "#000",
+            headerTitleStyle: { fontSize: 16, fontWeight: "500" },
+            // headerBackImageSource: require("../assets/backIcon.png"),
+            // headerRight: () => <Text onPress={() => alert("This is a button!")}></Text>,
+            // headerLeft: () => (
+            //   <TouchableOpacity>
+            //     <Image source={require("../assets/backIcon.png")} style={{ width: 24, height: 24 }} />
+            //   </TouchableOpacity>
+            // ),
+          }}>
+          {!hasVisited && (
+            <Stack.Group
+              screenOptions={{
+                headerShown: false,
+              }}>
+              <Stack.Screen name={Screens.Onboarding} options={{ title: "Онбординг" }}>
+                {() => (
+                  <Layout>
+                    <Onboarding />
+                  </Layout>
+                )}
+              </Stack.Screen>
+              <Stack.Screen name={Screens.CreateAccount} options={{ title: "Создать аккаунт" }}>
+                {() => (
+                  <Layout>
+                    <CreateAccount />
+                  </Layout>
+                )}
+              </Stack.Screen>
+            </Stack.Group>
+          )}
+          {hasVisited && !role && (
+            <Stack.Screen
+              options={{
+                headerTransparent: true,
+                headerShown: false,
+              }}
+              name={"Screens.Unauthorized"}>
+              {() => <UnauthorizedScreen />}
             </Stack.Screen>
-            <Stack.Screen name={Screens.CreateAccount} options={{ title: "Создать аккаунт" }}>
-              {() => (
-                <Layout>
-                  <CreateAccount />
-                </Layout>
-              )}
-            </Stack.Screen>
-          </Stack.Group>
-        )}
-        {hasVisited && !role && (
-          <Stack.Screen
-            options={{
-              headerTransparent: true,
-              headerShown: false,
-            }}
-            name={"Screens.Unauthorized"}>
-            {() => <UnauthorizedScreen />}
-          </Stack.Screen>
-        )}
-        {hasVisited && role === "user" && (
-          <Stack.Group
-            screenOptions={{
-              headerTransparent: true,
-              headerShown: false,
-            }}>
-            <Stack.Screen name={Screens.TabNavigator}>
-              {() => (
-                <Tab.Navigator
-                  screenOptions={{
-                    headerShown: false,
-                    tabBarLabelStyle: { fontFamily: THEME.FONTS.SFProText500, fontSize: 10, marginBottom: 5 },
-                  }}>
-                  <Tab.Screen name={Screens.CoursesRoot} options={{ tabBarLabel: "Главная", tabBarIcon: HomeIcon }}>
-                    {() => <HomeStackScreen />}
-                  </Tab.Screen>
-                  <Tab.Screen name={Screens.ProfileRoot} options={{ tabBarLabel: "Профиль", tabBarIcon: ProfileIcon }}>
-                    {() => <ProfileStackScreen />}
-                  </Tab.Screen>
-                </Tab.Navigator>
-              )}
-            </Stack.Screen>
-            <Stack.Screen name={Screens.Subscription} options={{ headerShown: true, title: "" }}>
-              {() => (
-                <Layout>
-                  <Subscription />
-                </Layout>
-              )}
-            </Stack.Screen>
-          </Stack.Group>
-        )}
-      </Stack.Navigator>
-    </NavigationContainer>
+          )}
+          {hasVisited && role === "user" && (
+            <Stack.Group
+              screenOptions={{
+                headerTransparent: true,
+                headerShown: false,
+              }}>
+              <Stack.Screen name={Screens.TabNavigator}>
+                {() => (
+                  <Tab.Navigator
+                    screenOptions={{
+                      headerShown: false,
+                      tabBarLabelStyle: { fontFamily: THEME.FONTS.SFProText500, fontSize: 10, marginBottom: 5 },
+                    }}>
+                    <Tab.Screen name={Screens.CoursesRoot} options={{ tabBarLabel: "Главная", tabBarIcon: HomeIcon }}>
+                      {() => <HomeStackScreen />}
+                    </Tab.Screen>
+                    <Tab.Screen name={Screens.ProfileRoot} options={{ tabBarLabel: "Профиль", tabBarIcon: ProfileIcon }}>
+                      {() => <ProfileStackScreen />}
+                    </Tab.Screen>
+                  </Tab.Navigator>
+                )}
+              </Stack.Screen>
+              <Stack.Screen name={Screens.Subscription} options={{ headerShown: true, title: "" }}>
+                {() => (
+                  <Layout>
+                    <Subscription />
+                  </Layout>
+                )}
+              </Stack.Screen>
+            </Stack.Group>
+          )}
+        </Stack.Navigator>
+      </NavigationContainer>
+    )
   );
 }
