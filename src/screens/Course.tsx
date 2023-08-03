@@ -8,6 +8,7 @@ import { CoursePreview, LockSmall } from "../components/svgs";
 import { useAppDispatch, useAppNavigation, useAppSelector } from "../hooks";
 import { THEME } from "../theme";
 import { RegularText, Title, axiosQuery, checkSubscriptionValidity, videoLength } from "../utilities";
+import { setIsLoading } from "../store/loaderSlice";
 
 const Container = styled.ScrollView`
   width: 100%;
@@ -177,6 +178,7 @@ const Course = ({ route }) => {
   useEffect(() => {
     (async () => {
       if (!!route.params.id) {
+        dispatch(setIsLoading(true));
         try {
           const res = await axiosQuery({ url: `/courses/${route.params.id}` });
           setCourseData(res.data);
@@ -189,6 +191,7 @@ const Course = ({ route }) => {
         } catch (e) {
           console.log(e.response.data.message);
         }
+        dispatch(setIsLoading(false));
       }
     })();
   }, [route]);

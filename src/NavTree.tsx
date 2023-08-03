@@ -38,6 +38,7 @@ import { countVisit } from "./store/visitSlice";
 import { THEME } from "./theme";
 import { updateProfile } from "./store/userSlice";
 import axios from "axios";
+import * as SplashScreen from "expo-splash-screen";
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -270,6 +271,8 @@ const UnauthorizedScreen = () => {
   );
 };
 
+SplashScreen.preventAutoHideAsync();
+
 export default function NavTree() {
   const [fontsLoaded] = useFonts({
     SFProText400: require("../assets/fonts/SF-Pro-Text-Regular.otf"),
@@ -287,6 +290,8 @@ export default function NavTree() {
   const role = useAppSelector((state) => state.user.role);
 
   const [hasLoaded, setHasLoaded] = useState(false);
+  const [startTime, setStartTime] = useState<number>(null);
+
   const reauthorize = async () => {
     const token = await AsyncStorage.getItem("norma-token");
     if (token)
@@ -325,6 +330,35 @@ export default function NavTree() {
       reauthorize();
     }
   }, [role]);
+
+  useEffect(() => {
+    const onLoadStart = () => {
+      setStartTime(Date.now());
+      // console.log("fontsLoaded", fontsLoaded);
+    };
+
+    const onLoadEnd = () => {
+      // console.log("fontsLoaded", fontsLoaded);
+
+      const endTime = Date.now();
+      var timeDiff = endTime - startTime; //in ms
+      // console.log("startTime", startTime);
+      // console.log("endTime", endTime);
+
+      // console.log(timeDiff + " ms");
+
+      const delay = timeDiff > 5000 ? 0 : 5000 - timeDiff;
+      new Promise((resolve) => setTimeout(resolve, delay)).then((r) => SplashScreen.hideAsync());
+    };
+
+    if (!fontsLoaded) {
+      onLoadStart();
+    }
+
+    if (!!fontsLoaded) {
+      onLoadEnd();
+    }
+  }, [fontsLoaded]);
 
   if (!fontsLoaded) {
     return null;

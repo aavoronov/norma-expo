@@ -8,6 +8,7 @@ import useBackButton from "../hooks/useBackButton";
 import { updateProfile } from "../store/userSlice";
 import { THEME } from "../theme";
 import { RegularText, SetState, Title, axiosQuery, sumToLocale } from "../utilities";
+import { setIsLoading } from "../store/loaderSlice";
 
 const Container = styled.View`
   height: 100%;
@@ -139,7 +140,6 @@ const Subscription = () => {
   useBackButton();
   const dispatch = useAppDispatch();
   const navigation = useAppNavigation();
-  const subscriptionThrough = useAppSelector((state) => state.user.subscriptionThrough);
 
   const [plansData, setPlansData] = useState<SubscriptionData[]>([]);
   const [plan, setPlan] = useState(0);
@@ -157,20 +157,15 @@ const Subscription = () => {
   }, []);
 
   const handleSubmit = async () => {
-    const selectedPlan = plansData.find((item) => item.id === plan);
-
-    // const date = !subscriptionThrough ? new Date() : new Date(Date.parse(subscriptionThrough));
-    // date.setDate(date.getDate() + plan);
-
-    // const extendSubscriptionDurationTo = date.toISOString();
-
     try {
+      dispatch(setIsLoading(true));
       const res = await axiosQuery({ method: "post", url: "/users/subscribe", payload: { id: plan } });
       dispatch(updateProfile({ subscriptionThrough: res.data.date, subscriptionCancelled: false }));
       navigation.goBack();
     } catch (e) {
       console.log(e.response.data.message);
     }
+    dispatch(setIsLoading(false));
   };
 
   return (

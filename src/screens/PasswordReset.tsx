@@ -10,6 +10,7 @@ import { useAppDispatch, useAppNavigation } from "../hooks";
 import useBackButton from "../hooks/useBackButton";
 import { THEME } from "../theme";
 import { axiosQuery } from "../utilities";
+import { setIsLoading } from "../store/loaderSlice";
 
 const FormHeader = styled.Text`
   font-size: 22px;
@@ -48,6 +49,7 @@ export default function PasswordReset() {
   } = useForm({ defaultValues, mode: "onChange", criteriaMode: "all" });
 
   const onSubmit = async (data: typeof defaultValues) => {
+    dispatch(setIsLoading(true));
     try {
       const res = await axiosQuery({ url: "/users/request-restoration", method: "post", payload: { email: data.email }, noAuth: true });
       // console.log("res.data", res);
@@ -57,6 +59,7 @@ export default function PasswordReset() {
       setNoSuchAccount(true);
       setError("email", { type: "manual", message: "Аккаунт с этой почтой не зарегистрирован" });
     }
+    dispatch(setIsLoading(false));
   };
 
   useBackButton();

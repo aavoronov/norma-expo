@@ -6,6 +6,7 @@ import useBackButton from "../hooks/useBackButton";
 import { resetUser } from "../store/userSlice";
 import { THEME } from "../theme";
 import { RegularText, Title, axiosQuery } from "../utilities";
+import { setIsLoading } from "../store/loaderSlice";
 
 const DeleteAccount = () => {
   useBackButton();
@@ -13,6 +14,7 @@ const DeleteAccount = () => {
   const dispatch = useAppDispatch();
 
   const handlePress = async () => {
+    dispatch(setIsLoading(true));
     try {
       const res = await axiosQuery({ method: "delete", url: "/users" });
       dispatch(resetUser());
@@ -20,6 +22,7 @@ const DeleteAccount = () => {
     } catch (e) {
       console.log("e", e.response.data.message);
     }
+    dispatch(setIsLoading(false));
   };
 
   return (

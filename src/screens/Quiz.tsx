@@ -7,6 +7,7 @@ import ButtonPrimary from "../components/ButtonPrimary";
 import { useAppDispatch, useAppNavigation } from "../hooks";
 import { THEME } from "../theme";
 import { RegularText, Title, axiosQuery } from "../utilities";
+import { setIsLoading } from "../store/loaderSlice";
 
 const Container = styled.View`
   justify-content: space-between;
@@ -70,15 +71,18 @@ const Quiz = ({ route }) => {
   const [anticipations, setAnticipations] = useState<string[]>([]);
 
   const navigation = useAppNavigation();
+  const dispatch = useAppDispatch();
 
   useEffect(() => {
     (async () => {
+      dispatch(setIsLoading(true));
       try {
         const res = await axiosQuery({ url: "/quiz-options-categories", noAuth: true });
         setContent(res.data);
       } catch (e) {
         console.log("e.response.data.message", e.response.data.message);
       }
+      dispatch(setIsLoading(false));
     })();
   }, []);
 

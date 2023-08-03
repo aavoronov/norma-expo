@@ -6,6 +6,7 @@ import useBackButton from "../hooks/useBackButton";
 import { updateProfile } from "../store/userSlice";
 import { THEME } from "../theme";
 import { RegularText, Title, axiosQuery } from "../utilities";
+import { setIsLoading } from "../store/loaderSlice";
 
 const CancelSubscriptionConfirmation = () => {
   useBackButton();
@@ -21,13 +22,15 @@ const CancelSubscriptionConfirmation = () => {
       <ButtonPrimary
         text='Да'
         onPress={async () => {
+          dispatch(setIsLoading(true));
           try {
-            const res = await axiosQuery({ method: "post", url: "/users/edit", payload: { subscriptionCancelled: true } });
+            const res = await axiosQuery({ method: "patch", url: "/users/edit", payload: { subscriptionCancelled: true } });
             dispatch(updateProfile({ subscriptionCancelled: true }));
             navigation.navigate(Screens.SubscriptionCancelled);
           } catch (e) {
             console.log(e.response.data.message);
           }
+          dispatch(setIsLoading(false));
         }}
         style={{ marginBottom: 36 }}
       />

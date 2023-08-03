@@ -3,9 +3,10 @@ import { ImageBackground, ScrollView, Text, TouchableOpacity, View } from "react
 import { styled } from "styled-components/native";
 import { Screens } from "../Screens";
 import { CoursePreview } from "../components/svgs";
-import { useAppNavigation, useAppSelector } from "../hooks";
+import { useAppDispatch, useAppNavigation, useAppSelector } from "../hooks";
 import { THEME } from "../theme";
 import { RegularText, SetState, Title, axiosQuery, videoLength } from "../utilities";
+import { setIsLoading } from "../store/loaderSlice";
 
 type ActivityTypes = "fitness" | "restaurants" | "tourism";
 
@@ -134,7 +135,7 @@ const SingleCategory = ({ singleCategory, filter }: { singleCategory: Section; f
 
 const Filter = ({ filtersData, filter, setFilter }: { filtersData: Filter[]; filter: Filter; setFilter: SetState<Filter> }) => {
   return (
-    <View style={{ flexDirection: "row", marginBottom: 32 }}>
+    <ScrollView style={{ flexDirection: "row", marginBottom: 32 }} horizontal>
       {filtersData.map((item) => {
         const isSelected = filter === item;
         return (
@@ -152,7 +153,7 @@ const Filter = ({ filtersData, filter, setFilter }: { filtersData: Filter[]; fil
           </TouchableOpacity>
         );
       })}
-    </View>
+    </ScrollView>
   );
 };
 
@@ -162,20 +163,26 @@ const Courses = () => {
 
   const [coursesData, setCoursesData] = useState<Section[]>([]);
   const [filtersData, setFiltersData] = useState<Filter[]>([]);
+  const dispatch = useAppDispatch();
+
+  const getCourses = async () => {
+    dispatch(setIsLoading(true));
+    try {
+      const res = await axiosQuery({ url: "/course-sections" });
+      setCoursesData(res.data);
+    } catch (e) {
+      console.log("e", e.response.data.message);
+    }
+    dispatch(setIsLoading(false));
+  };
 
   useEffect(() => {
-    (async () => {
-      try {
-        const res = await axiosQuery({ url: "/course-sections" });
-        setCoursesData(res.data);
-      } catch (e) {
-        console.log("e", e.response.data.message);
-      }
-    })();
+    getCourses();
   }, []);
 
   useEffect(() => {
     (async () => {
+      dispatch(setIsLoading(true));
       try {
         const res = await axiosQuery({ url: "/course-filter-options" });
         setFiltersData(res.data);
@@ -183,6 +190,7 @@ const Courses = () => {
       } catch (e) {
         console.log("e", e.response.data.message);
       }
+      dispatch(setIsLoading(false));
     })();
   }, []);
 

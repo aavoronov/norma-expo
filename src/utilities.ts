@@ -219,7 +219,6 @@ export class AxiosConfig {
 
 export const axiosQuery = async ({ method, url, noAuth, payload }: AxiosConfigProps) => {
   try {
-    // const res = await axios(await AxiosConfig.createAsync({ method, url, noAuth, payload }));
     const res = await axios(await axiosConfig({ method, url, noAuth, payload }));
     return res;
   } catch (e) {
