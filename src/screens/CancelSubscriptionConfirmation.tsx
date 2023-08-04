@@ -22,7 +22,7 @@ const CancelSubscriptionConfirmation = () => {
       <ButtonPrimary
         text='Да'
         onPress={async () => {
-          dispatch(setIsLoading(true));
+          // dispatch(setIsLoading(true));
           try {
             const res = await axiosQuery({ method: "patch", url: "/users/edit", payload: { subscriptionCancelled: true } });
             dispatch(updateProfile({ subscriptionCancelled: true }));
@@ -30,7 +30,7 @@ const CancelSubscriptionConfirmation = () => {
           } catch (e) {
             console.log(e.response.data.message);
           }
-          dispatch(setIsLoading(false));
+          // dispatch(setIsLoading(false));
         }}
         style={{ marginBottom: 36 }}
       />

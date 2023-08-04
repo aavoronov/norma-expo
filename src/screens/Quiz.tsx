@@ -75,14 +75,14 @@ const Quiz = ({ route }) => {
 
   useEffect(() => {
     (async () => {
-      dispatch(setIsLoading(true));
+      // dispatch(setIsLoading(true));
       try {
         const res = await axiosQuery({ url: "/quiz-options-categories", noAuth: true });
         setContent(res.data);
       } catch (e) {
         console.log("e.response.data.message", e.response.data.message);
       }
-      dispatch(setIsLoading(false));
+      // dispatch(setIsLoading(false));
     })();
   }, []);
 

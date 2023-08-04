@@ -11,10 +11,10 @@ const BecomeSpeaker = () => {
   const dispatch = useAppDispatch();
 
   const getAdminEmail = async () => {
-    dispatch(setIsLoading(true));
+    // dispatch(setIsLoading(true));
     const res = await axiosQuery({ url: `/generic-data/email` });
     setAdminEmail(res.data.value);
-    dispatch(setIsLoading(false));
+    // dispatch(setIsLoading(false));
   };
 
   useEffect(() => {

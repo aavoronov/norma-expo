@@ -178,7 +178,7 @@ const Course = ({ route }) => {
   useEffect(() => {
     (async () => {
       if (!!route.params.id) {
-        dispatch(setIsLoading(true));
+        // dispatch(setIsLoading(true));
         try {
           const res = await axiosQuery({ url: `/courses/${route.params.id}` });
           setCourseData(res.data);
@@ -191,7 +191,7 @@ const Course = ({ route }) => {
         } catch (e) {
           console.log(e.response.data.message);
         }
-        dispatch(setIsLoading(false));
+        // dispatch(setIsLoading(false));
       }
     })();
   }, [route]);

@@ -166,14 +166,14 @@ const Courses = () => {
   const dispatch = useAppDispatch();
 
   const getCourses = async () => {
-    dispatch(setIsLoading(true));
+    // dispatch(setIsLoading(true));
     try {
       const res = await axiosQuery({ url: "/course-sections" });
       setCoursesData(res.data);
     } catch (e) {
       console.log("e", e.response.data.message);
     }
-    dispatch(setIsLoading(false));
+    // dispatch(setIsLoading(false));
   };
 
   useEffect(() => {
@@ -182,7 +182,7 @@ const Courses = () => {
 
   useEffect(() => {
     (async () => {
-      dispatch(setIsLoading(true));
+      // dispatch(setIsLoading(true));
       try {
         const res = await axiosQuery({ url: "/course-filter-options" });
         setFiltersData(res.data);
@@ -190,7 +190,7 @@ const Courses = () => {
       } catch (e) {
         console.log("e", e.response.data.message);
       }
-      dispatch(setIsLoading(false));
+      // dispatch(setIsLoading(false));
     })();
   }, []);
 

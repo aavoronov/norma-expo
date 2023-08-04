@@ -31,11 +31,11 @@ const Loader = () => {
 };
 
 export const Layout = ({ children, style }: { children: JSX.Element; style?: {} }): JSX.Element => {
-  const isLoading = useAppSelector((state) => state.loader);
+  // const isLoading = useAppSelector((state) => state.loader);
   return (
     <Container style={style}>
       <StatusBar style='dark' />
-      {!!isLoading && <Loader />}
+      {/* {!!isLoading && <Loader />} */}
       {children}
     </Container>
   );

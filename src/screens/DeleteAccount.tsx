@@ -14,7 +14,7 @@ const DeleteAccount = () => {
   const dispatch = useAppDispatch();
 
   const handlePress = async () => {
-    dispatch(setIsLoading(true));
+    // dispatch(setIsLoading(true));
     try {
       const res = await axiosQuery({ method: "delete", url: "/users" });
       dispatch(resetUser());
@@ -22,7 +22,7 @@ const DeleteAccount = () => {
     } catch (e) {
       console.log("e", e.response.data.message);
     }
-    dispatch(setIsLoading(false));
+    // dispatch(setIsLoading(false));
   };
 
   return (

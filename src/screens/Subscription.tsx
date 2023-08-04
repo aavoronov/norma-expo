@@ -158,14 +158,14 @@ const Subscription = () => {
 
   const handleSubmit = async () => {
     try {
-      dispatch(setIsLoading(true));
+      // dispatch(setIsLoading(true));
       const res = await axiosQuery({ method: "post", url: "/users/subscribe", payload: { id: plan } });
       dispatch(updateProfile({ subscriptionThrough: res.data.date, subscriptionCancelled: false }));
       navigation.goBack();
     } catch (e) {
       console.log(e.response.data.message);
     }
-    dispatch(setIsLoading(false));
+    // dispatch(setIsLoading(false));
   };
 
   return (

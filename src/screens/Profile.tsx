@@ -36,14 +36,14 @@ const Account = ({ navigation }: { navigation: NavigationProp }) => {
   const dispatch = useAppDispatch();
 
   const sendVerification = async () => {
-    dispatch(setIsLoading(true));
+    // dispatch(setIsLoading(true));
     try {
       const res = await axiosQuery({ url: "/users/send-verification" });
       navigation.navigate(Screens.CheckYourEmail);
     } catch (e) {
       console.log("e", e.response.data.message);
     }
-    dispatch(setIsLoading(false));
+    // dispatch(setIsLoading(false));
   };
 
   const handleButtonPress = async () => {
@@ -94,7 +94,7 @@ const Favourites = ({ navigation }: { navigation: NavigationProp }) => {
   useEffect(() => {
     (async () => {
       if (!faves.length) {
-        dispatch(setIsLoading(true));
+        // dispatch(setIsLoading(true));
         try {
           const res = await axiosQuery({ url: "/favourites" });
 
@@ -103,7 +103,7 @@ const Favourites = ({ navigation }: { navigation: NavigationProp }) => {
         } catch (e) {
           console.log(e.response.data.message);
         }
-        dispatch(setIsLoading(false));
+        // dispatch(setIsLoading(false));
       }
     })();
   }, []);
@@ -262,12 +262,12 @@ const Profile = () => {
   useFocusEffect(
     useCallback(() => {
       (async () => {
-        dispatch(setIsLoading(true));
+        // dispatch(setIsLoading(true));
         if (!emailConfirmed) {
           const res = await axiosQuery({ url: "/users/reauth" });
           dispatch(updateProfile({ ...res.data, role: "user" }));
         }
-        dispatch(setIsLoading(false));
+        // dispatch(setIsLoading(false));
       })();
     }, [])
   );

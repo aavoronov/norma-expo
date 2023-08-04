@@ -120,7 +120,7 @@ const TimingsTable = forwardRef(({ lessonData }: { lessonData: Lesson }, ref: Mu
                 )
               }
               style={[{ justifyContent: "flex-start", marginBottom: 4 }, cellIndex === 0 ? { flex: 4 } : { flex: 15 }]}
-              textStyle={{ fontFamily: THEME.FONTS.SFProText500, fontSize: 14, lineHeight: 20, color: THEME.DARK_GRAY_5D5D69 }}
+              textStyle={{ fontFamily: THEME.FONTS.SFProText500, fontSize: 14, lineHeight: 19, color: THEME.DARK_GRAY_5D5D69 }}
             />
           ))}
         </TableWrapper>
@@ -160,14 +160,14 @@ const Lesson = ({ route }) => {
     (async () => {
       if (!!route.params.id) {
         try {
-          dispatch(setIsLoading(true));
+          // dispatch(setIsLoading(true));
           const res = await axiosQuery({ url: `/lessons/${route.params.id}` });
 
           setLessonData(res.data);
         } catch (e) {
           console.log(e.response.data.message);
         }
-        dispatch(setIsLoading(false));
+        // dispatch(setIsLoading(false));
       }
     })();
   }, []);
