@@ -347,7 +347,7 @@ export default function NavTree() {
 
       // console.log(timeDiff + " ms");
 
-      const delay = timeDiff > 5000 ? 0 : 5000 - timeDiff;
+      const delay = timeDiff > 3000 ? 0 : 5000 - timeDiff;
       new Promise((resolve) => setTimeout(resolve, delay)).then((r) => SplashScreen.hideAsync());
     };
 
