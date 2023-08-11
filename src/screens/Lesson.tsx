@@ -1,6 +1,6 @@
 import { Video } from "expo-av";
 import { MutableRefObject, forwardRef, useEffect, useRef, useState } from "react";
-import { Image, Text, TouchableOpacity, View } from "react-native";
+import { Image, Platform, Text, TouchableOpacity, View } from "react-native";
 import { Cell, Table, TableWrapper } from "react-native-table-component";
 import { styled } from "styled-components/native";
 import BackButton from "../components/BackButton";
@@ -111,6 +111,7 @@ const TimingsTable = forwardRef(({ lessonData }: { lessonData: Lesson }, ref: Mu
                       style={{
                         color: THEME.MAIN_RED,
                         fontFamily: THEME.FONTS.SFProText500,
+                        lineHeight: 20,
                       }}>
                       {cellData[1]}
                     </Text>
@@ -120,7 +121,7 @@ const TimingsTable = forwardRef(({ lessonData }: { lessonData: Lesson }, ref: Mu
                 )
               }
               style={[{ justifyContent: "flex-start", marginBottom: 4 }, cellIndex === 0 ? { flex: 4 } : { flex: 15 }]}
-              textStyle={{ fontFamily: THEME.FONTS.SFProText500, fontSize: 14, lineHeight: 19, color: THEME.DARK_GRAY_5D5D69 }}
+              textStyle={{ fontFamily: THEME.FONTS.SFProText500, fontSize: 14, lineHeight: 20, color: THEME.DARK_GRAY_5D5D69 }}
             />
           ))}
         </TableWrapper>
@@ -215,7 +216,7 @@ const Lesson = ({ route }) => {
             justifyContent: "center",
             alignItems: "center",
           }}>
-          <Image source={require("../../assets/coursePreviewLarge.png")} style={{ height: "70%" }} resizeMode='contain' />
+          {/* <Image source={require("../../assets/coursePreviewLarge.png")} style={{ height: "70%" }} resizeMode='contain' /> */}
           <TouchableOpacity
             style={{
               height: 64,

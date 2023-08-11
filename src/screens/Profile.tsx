@@ -176,9 +176,7 @@ const Favourites = ({ navigation }: { navigation: NavigationProp }) => {
             </ImageBackground>
           ) : (
             <>
-              <View style={{ marginBottom: 5 }}>
-                <CoursePreview />
-              </View>
+              <View style={{ marginBottom: 5 }}>{/* <CoursePreview /> */}</View>
               {noAccess && (
                 <View
                   style={{

@@ -138,9 +138,7 @@ const LessonThumb = ({ lesson, index }: { lesson: Lesson; index: number }) => {
           </ImageBackground>
         ) : (
           <>
-            <View style={{ marginBottom: 5 }}>
-              <CoursePreview />
-            </View>
+            <View style={{ marginBottom: 5 }}>{/* <CoursePreview /> */}</View>
             {noAccess && (
               <View
                 style={{

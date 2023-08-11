@@ -100,10 +100,10 @@ const CourseThumb = ({ course }: { course: StandaloneLesson | Course }) => {
             paddingLeft: 21,
             padding: 8,
             marginBottom: 12,
+            width: 150,
+            height: 84,
           }}>
-          <View style={{ marginBottom: 5 }}>
-            <CoursePreview />
-          </View>
+          <View style={{ marginBottom: 5 }}>{/* <CoursePreview /> */}</View>
           <Text style={{ fontFamily: THEME.FONTS.SFProText500, fontSize: 9 }}>{timelapse}</Text>
         </View>
       )}

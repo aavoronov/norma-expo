@@ -94,9 +94,7 @@ const LessonThumb = ({ lesson }: { lesson: Lesson }) => {
           </ImageBackground>
         ) : (
           <>
-            <View style={{ marginBottom: 5 }}>
-              <CoursePreview />
-            </View>
+            <View style={{ marginBottom: 5 }}>{/* <CoursePreview /> */}</View>
             {noAccess && (
               <View
                 style={{
