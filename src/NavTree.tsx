@@ -433,14 +433,17 @@ export default function NavTree() {
               {() => <UnauthorizedScreen />}
             </Stack.Screen>
           )}
-          <Stack.Screen
+          {/* <Stack.Screen
             options={{
-              headerTransparent: true,
               headerShown: false,
             }}
             name={Screens.NoConnectivity}>
-            {() => <NoConnectivity />}
-          </Stack.Screen>
+            {() => (
+              <Layout>
+                <NoConnectivity />
+              </Layout>
+            )}
+          </Stack.Screen> */}
           {hasVisited && role === "user" && (
             <Stack.Group
               screenOptions={{

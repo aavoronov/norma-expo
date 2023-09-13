@@ -5,10 +5,11 @@ import { UIActivityIndicator } from "react-native-indicators";
 import { styled } from "styled-components/native";
 import { useAppNavigation, useAppSelector } from "../hooks";
 import { THEME } from "../theme";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import * as ScreenOrientation from "expo-screen-orientation";
 import NetInfo from "@react-native-community/netinfo";
 import { Screens } from "../Screens";
+import NoConnectivity from "../screens/NoConnectivity";
 
 const Container = styled.View`
   justify-content: center;
@@ -38,6 +39,8 @@ export const Layout = ({ children, style }: { children: JSX.Element; style?: {} 
   // const isLoading = useAppSelector((state) => state.loader);
   const navigation = useAppNavigation();
 
+  const [isConnected, setIsConnected] = useState(true);
+
   useEffect(() => {
     ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT_UP);
     console.log(Constants.statusBarHeight);
@@ -47,9 +50,10 @@ export const Layout = ({ children, style }: { children: JSX.Element; style?: {} 
     const unsubscribe = NetInfo.addEventListener((state) => {
       console.log("Connection type", state.type);
       console.log("Is connected?", state.isConnected);
-      if (!state.isConnected) {
-        navigation.navigate(Screens.NoConnectivity);
-      }
+      setIsConnected(state.isConnected);
+      // if (!state.isConnected) {
+      //   navigation.navigate(Screens.NoConnectivity);
+      // }
     });
 
     // To unsubscribe to these update, just use:
@@ -60,7 +64,7 @@ export const Layout = ({ children, style }: { children: JSX.Element; style?: {} 
     <Container style={style}>
       <StatusBar style='dark' />
       {/* {!!isLoading && <Loader />} */}
-      {children}
+      {isConnected ? children : <NoConnectivity />}
     </Container>
   );
 };

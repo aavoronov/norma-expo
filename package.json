@@ -1,5 +1,5 @@
 {
-  "name": "norma-expo",
+  "name": "Норма App",
   "version": "1.0.0",
   "scripts": {
     "start": "expo start --dev-client",
@@ -18,7 +18,6 @@
     "expo": "~48.0.18",
     "expo-av": "~13.2.1",
     "expo-constants": "~14.2.1",
-    "expo-dev-client": "~2.2.1",
     "expo-intent-launcher": "~10.5.2",
     "expo-navigation-bar": "~2.1.1",
     "expo-screen-orientation": "~5.1.1",
@@ -41,6 +40,7 @@
     "react-native-video-controls": "github:aavoronov/react-native-video-controls",
     "react-redux": "^8.1.1",
     "styled-components": "^6.0.0",
+    "expo-dev-client": "~2.2.1",
     "@react-native-community/netinfo": "9.3.7"
   },
   "devDependencies": {

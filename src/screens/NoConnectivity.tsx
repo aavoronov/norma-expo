@@ -6,15 +6,15 @@ import { RegularText, Title } from "../utilities";
 import NetInfo from "@react-native-community/netinfo";
 
 const NoConnectivity = () => {
-  const navigation = useAppNavigation();
+  // const navigation = useAppNavigation();
 
   useEffect(() => {
     const unsubscribe = NetInfo.addEventListener((state) => {
-      console.log("Connection type", state.type);
-      console.log("Is connected?", state.isConnected);
-      if (state.isConnected) {
-        navigation.goBack();
-      }
+      // console.log("Connection type", state.type);
+      // console.log("Is connected?", state.isConnected);
+      // if (state.isConnected) {
+      //   navigation.goBack();
+      // }
     });
 
     // To unsubscribe to these update, just use:
