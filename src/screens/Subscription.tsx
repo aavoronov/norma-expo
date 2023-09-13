@@ -1,22 +1,23 @@
 import { useEffect, useState } from "react";
-import { Text, TouchableOpacity, View } from "react-native";
+import { BackHandler, Image, Platform, Text, TouchableOpacity, View } from "react-native";
+
 import { styled } from "styled-components/native";
 import ButtonPrimary from "../components/ButtonPrimary";
 import ButtonSecondary from "../components/ButtonSecondary";
-import { useAppDispatch, useAppNavigation, useAppSelector } from "../hooks";
+import { useAppDispatch, useAppNavigation } from "../hooks";
 import useBackButton from "../hooks/useBackButton";
-import { updateProfile } from "../store/userSlice";
 import { THEME } from "../theme";
 import { RegularText, SetState, Title, axiosQuery, sumToLocale } from "../utilities";
-import { setIsLoading } from "../store/loaderSlice";
+import PaymentSystem from "./PaymentSystemTemp";
+import PaymentCardDetails from "./PaymentCardDetails";
 
 const Container = styled.View`
   height: 100%;
   width: 100%;
-  padding: 80px 0;
+  padding: 80px 5%;
 `;
 
-interface SubscriptionData {
+export interface SubscriptionPlan {
   id: number;
   term: number;
   humanFriendlyTerm: string;
@@ -25,7 +26,7 @@ interface SubscriptionData {
   isGoodOffer: boolean;
 }
 
-const Modifier = ({ isGoodOffer }: Partial<SubscriptionData>) => {
+const Modifier = ({ isGoodOffer }: Partial<SubscriptionPlan>) => {
   return (
     <View
       style={{
@@ -47,8 +48,9 @@ const Modifier = ({ isGoodOffer }: Partial<SubscriptionData>) => {
   );
 };
 
-const SubscriptionPlans = ({ data, plan, setPlan }: { data: SubscriptionData[]; plan: number; setPlan: SetState<number> }) => {
+const SubscriptionPlans = ({ data, plan, setPlan }: { data: SubscriptionPlan[]; plan: number; setPlan: SetState<number> }) => {
   const basePrice = data[0].price;
+
   return (
     <View>
       {data.map((item, index) => {
@@ -137,18 +139,44 @@ const OfferBtn = () => {
 };
 
 const Subscription = () => {
-  useBackButton();
   const dispatch = useAppDispatch();
   const navigation = useAppNavigation();
 
-  const [plansData, setPlansData] = useState<SubscriptionData[]>([]);
+  const [plansData, setPlansData] = useState<SubscriptionPlan[]>([]);
   const [plan, setPlan] = useState(0);
+  const [modalVisible, setModalVisible] = useState(false);
+  const [stage, setStage] = useState(0);
+
+  useEffect(() => {
+    navigation.setOptions({
+      headerLeft: () =>
+        navigation.canGoBack() ? (
+          <TouchableOpacity
+            onPress={() => {
+              stage === 0 ? navigation.goBack() : setStage((prev) => prev - 1);
+            }}>
+            <Image source={require("../../assets/backIcon.png")} style={{ width: 24, height: 24 }} />
+          </TouchableOpacity>
+        ) : null,
+    });
+
+    const onBackPress = () => {
+      if (stage > 0) {
+        setStage((prev) => prev - 1);
+        return true;
+      }
+      return false;
+    };
+    const subscription = BackHandler.addEventListener("hardwareBackPress", onBackPress);
+
+    return () => subscription.remove();
+  }, [stage]);
 
   useEffect(() => {
     (async () => {
       try {
         const res = await axiosQuery({ url: "/subscription-plans" });
-        setPlansData(res.data.sort((a: SubscriptionData, b: SubscriptionData) => a.id - b.id));
+        setPlansData(res.data.sort((a: SubscriptionPlan, b: SubscriptionPlan) => a.id - b.id));
         setPlan(res.data[0].id);
       } catch (e) {
         console.log(e.response.message.data);
@@ -156,25 +184,27 @@ const Subscription = () => {
     })();
   }, []);
 
-  const handleSubmit = async () => {
-    try {
-      // dispatch(setIsLoading(true));
-      const res = await axiosQuery({ method: "post", url: "/users/subscribe", payload: { id: plan } });
-      dispatch(updateProfile({ subscriptionThrough: res.data.date, subscriptionCancelled: false }));
-      navigation.goBack();
-    } catch (e) {
-      console.log(e.response.data.message);
-    }
-    // dispatch(setIsLoading(false));
+  const handleSubmit = () => {
+    setStage((prev) => prev + 1);
   };
 
   return (
     <Container>
-      <Title style={{ textAlign: "left", marginBottom: 16 }}>Выберите план подписки</Title>
-      <RegularText style={{ marginBottom: 36 }}>Полный доступ ко всем онлайн-курсам и лекциям</RegularText>
-      {!!plansData.length && <SubscriptionPlans data={plansData} plan={plan} setPlan={setPlan} />}
-      {plan !== 0 && <ButtonPrimary text='Оформить подписку' onPress={handleSubmit} style={{ marginTop: 50, marginBottom: 25 }} />}
-      <OfferBtn />
+      {stage === 0 && (
+        <>
+          <Title style={{ textAlign: "left", marginBottom: 16 }}>Выберите план подписки</Title>
+          <RegularText style={{ marginBottom: 36 }}>Полный доступ ко всем онлайн-курсам и лекциям</RegularText>
+          {!!plansData.length && <SubscriptionPlans data={plansData} plan={plan} setPlan={setPlan} />}
+          <Text style={{ textAlign: "left", fontFamily: THEME.FONTS.SFProText400, color: THEME.BLACKISH_2D2D31, fontSize: 12 }}>
+            Выбранный тариф будет продлеваться автоматически. Вы можете отменить автоматические платежи в личном кабинете в любое время до
+            даты платежа.
+          </Text>
+          {plan !== 0 && <ButtonPrimary text='Оформить подписку' onPress={handleSubmit} style={{ marginTop: 50, marginBottom: 25 }} />}
+
+          <OfferBtn />
+        </>
+      )}
+      {stage === 1 && <PaymentCardDetails selectedPlan={plansData.find((item) => item.id === plan)} />}
     </Container>
   );
 };

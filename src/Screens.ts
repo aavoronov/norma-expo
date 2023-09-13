@@ -31,6 +31,8 @@ export const Screens = {
   ManageSubscription: "ManageSubscription",
   CancelSubscriptionConfirmation: "CancelSubscriptionConfirmation",
   SubscriptionCancelled: "SubscriptionCancelled",
+  SubscriptionComplete: "SubscriptionComplete",
   Logout: "Logout",
   DeleteAccount: "DeleteAccount",
+  NoConnectivity: "NoConnectivity",
 };

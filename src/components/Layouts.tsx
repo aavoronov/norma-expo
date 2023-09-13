@@ -3,8 +3,12 @@ import { StatusBar } from "expo-status-bar";
 import { View } from "react-native";
 import { UIActivityIndicator } from "react-native-indicators";
 import { styled } from "styled-components/native";
-import { useAppSelector } from "../hooks";
+import { useAppNavigation, useAppSelector } from "../hooks";
 import { THEME } from "../theme";
+import { useEffect } from "react";
+import * as ScreenOrientation from "expo-screen-orientation";
+import NetInfo from "@react-native-community/netinfo";
+import { Screens } from "../Screens";
 
 const Container = styled.View`
   justify-content: center;
@@ -32,6 +36,26 @@ const Loader = () => {
 
 export const Layout = ({ children, style }: { children: JSX.Element; style?: {} }): JSX.Element => {
   // const isLoading = useAppSelector((state) => state.loader);
+  const navigation = useAppNavigation();
+
+  useEffect(() => {
+    ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT_UP);
+    console.log(Constants.statusBarHeight);
+  }, []);
+
+  useEffect(() => {
+    const unsubscribe = NetInfo.addEventListener((state) => {
+      console.log("Connection type", state.type);
+      console.log("Is connected?", state.isConnected);
+      if (!state.isConnected) {
+        navigation.navigate(Screens.NoConnectivity);
+      }
+    });
+
+    // To unsubscribe to these update, just use:
+    return () => unsubscribe();
+  }, []);
+
   return (
     <Container style={style}>
       <StatusBar style='dark' />

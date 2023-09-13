@@ -76,6 +76,10 @@ const LessonThumb = ({ lesson, index }: { lesson: Lesson; index: number }) => {
   const subscriptionThrough = useAppSelector((state) => state.user.subscriptionThrough);
   const hasAccess = checkSubscriptionValidity(subscriptionThrough) || !isPaid;
   const noAccess = !hasAccess;
+
+  // useEffect(() => {
+
+  // },[])
   // const checkForPaidAction = usePaidAction();
 
   // const handlePress = () => {
@@ -204,7 +208,8 @@ const Course = ({ route }) => {
           resizeMode='cover'
         />
       ) : (
-        <Image source={require("../../assets/temp/Group514111.png")} style={{ marginBottom: 28, width: "100%" }} resizeMode='cover' />
+        // <Image source={require("../../assets/temp/Group514111.png")} style={{ marginBottom: 28, width: "100%" }} resizeMode='cover' />
+        <View style={{ marginBottom: 28, width: "100%", height: 220, backgroundColor: THEME.WHITISH_F2F3F8 }}></View>
       )}
 
       {!!courseData && (

@@ -39,6 +39,7 @@ import { THEME } from "./theme";
 import { updateProfile } from "./store/userSlice";
 import axios from "axios";
 import * as SplashScreen from "expo-splash-screen";
+import SubscriptionComplete from "./screens/SubscriptionComplete";
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -90,7 +91,7 @@ const HomeStackScreen = () => {
       </HomeStack.Screen>
       <HomeStack.Screen name={Screens.Lesson} options={{ headerShown: false }}>
         {({ route }) => (
-          <Layout style={{ paddingRight: 0, paddingLeft: 0 }}>
+          <Layout style={{ paddingRight: 0, paddingLeft: 0, marginTop: 0 }}>
             <Lesson route={route} />
           </Layout>
         )}
@@ -195,6 +196,13 @@ const ProfileStackScreen = () => {
           </Layout>
         )}
       </ProfileStack.Screen>
+      <ProfileStack.Screen name={Screens.SubscriptionComplete}>
+        {() => (
+          <Layout>
+            <SubscriptionComplete />
+          </Layout>
+        )}
+      </ProfileStack.Screen>
       <ProfileStack.Screen name={Screens.Logout}>
         {() => (
           <Layout>
@@ -273,6 +281,57 @@ const UnauthorizedScreen = () => {
 
 SplashScreen.preventAutoHideAsync();
 
+const linking = {
+  prefixes: ["https://norma-app.ru"],
+  config: {
+    screens: {
+      result: "/result/:id",
+      invite: "/invite/:id/:name",
+    },
+  },
+  // async getInitialURL() {
+  //   // First, you may want to do the default deep link handling
+  //   // Check if app was opened from a deep link
+  //   const url = await Linking.getInitialURL();
+
+  //   if (url != null) {
+  //     return url;
+  //   }
+
+  //   // Handle URL from expo push notifications
+  //   const response = await Notifications.getLastNotificationResponseAsync();
+
+  //   console.log("response?.notification.request.content", response?.notification.request.content.data);
+
+  //   return response?.notification.request.content.data.link;
+  // },
+  // subscribe(listener) {
+  //   const onReceiveURL = ({ url }) => listener(url);
+
+  //   // Listen to incoming links from deep linking
+  //   const eventListenerSubscription = Linking.addEventListener("url", onReceiveURL);
+
+  //   // Listen to expo push notifications
+  //   const subscription = Notifications.addNotificationResponseReceivedListener((response) => {
+  //     const url = response.notification.request.content.data.link;
+  //     console.log("url", response.notification.request.content.data.link);
+  //     console.log("!!response", !!response);
+
+  //     // Any custom logic to see whether the URL needs to be handled
+  //     //...
+
+  //     // Let React Navigation handle the URL
+  //     listener(url);
+  //   });
+
+  //   return () => {
+  //     // Clean up the event listeners
+  //     eventListenerSubscription.remove();
+  //     subscription.remove();
+  //   };
+  // },
+};
+
 export default function NavTree() {
   const [fontsLoaded] = useFonts({
     SFProText400: require("../assets/fonts/SF-Pro-Text-Regular.otf"),
@@ -282,12 +341,19 @@ export default function NavTree() {
     SFProDisplay400: require("../assets/fonts/SF-Pro-Display-Regular.otf"),
     SFProDisplay500: require("../assets/fonts/SF-Pro-Display-Medium.otf"),
     SFProDisplay700: require("../assets/fonts/SF-Pro-Display-Bold.otf"),
+    StolzlThin250: require("../assets/fonts/stolzl_thin.otf"),
+    StolzlLight300: require("../assets/fonts/stolzl_light.otf"),
+    StolzlRegular400: require("../assets/fonts/stolzl_regular.otf"),
+    StolzlMedium500: require("../assets/fonts/stolzl_medium.otf"),
+    StolzlBold700: require("../assets/fonts/stolzl_bold.otf"),
+    StolzlBook: require("../assets/fonts/stolzl_book.otf"),
   });
 
   const hasVisited = useAppSelector((state) => state.visit.hasVisited);
   const dispatch = useAppDispatch();
 
   const role = useAppSelector((state) => state.user.role);
+  const tabBarVisible = useAppSelector((state) => state.tabBar);
 
   const [hasLoaded, setHasLoaded] = useState(false);
   const [startTime, setStartTime] = useState<number>(null);
@@ -303,6 +369,7 @@ export default function NavTree() {
         });
         dispatch(
           updateProfile({
+            id: res.data.id,
             name: res.data.name,
             subscriptionThrough: res.data.subscriptionThrough,
             // role: res.data.role,
@@ -433,6 +500,7 @@ export default function NavTree() {
                     screenOptions={{
                       headerShown: false,
                       tabBarLabelStyle: { fontFamily: THEME.FONTS.SFProText500, fontSize: 10, marginBottom: 5 },
+                      tabBarStyle: { display: tabBarVisible ? "flex" : "none" },
                     }}>
                     <Tab.Screen name={Screens.CoursesRoot} options={{ tabBarLabel: "Главная", tabBarIcon: HomeIcon }}>
                       {() => <HomeStackScreen />}
@@ -445,7 +513,7 @@ export default function NavTree() {
               </Stack.Screen>
               <Stack.Screen name={Screens.Subscription} options={{ headerShown: true, title: "" }}>
                 {() => (
-                  <Layout>
+                  <Layout style={{ paddingRight: 0, paddingLeft: 0 }}>
                     <Subscription />
                   </Layout>
                 )}

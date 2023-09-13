@@ -29,6 +29,7 @@ interface UserData {
   status: number;
   token: string;
   user: {
+    id: number;
     email: string;
     name: string;
     role: string;
@@ -72,6 +73,7 @@ const Personalization = ({ route }): JSX.Element => {
   const login = async () => {
     dispatch(
       updateProfile({
+        id: userData.user.id,
         name: userData.user.name,
         subscriptionThrough: userData.user.subscriptionThrough,
         role: "user",

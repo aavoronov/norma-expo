@@ -1,8 +1,9 @@
-import { Text, TouchableOpacity } from "react-native";
+import { Linking, Text, TouchableOpacity } from "react-native";
 import { styled } from "styled-components/native";
 import useBackButton from "../hooks/useBackButton";
 import { THEME } from "../theme";
-import { Title } from "../utilities";
+import { Title, axiosQuery } from "../utilities";
+import { useEffect, useState } from "react";
 
 const Container = styled.View`
   height: 100%;
@@ -15,16 +16,16 @@ interface Document {
   link: string;
 }
 
-const documents: Document[] = [
-  { title: "Политика конфиденциальности", link: "http://norma.policy.url" },
-  { title: "Договор оферты", link: "http://norma.offer.url" },
-];
+// const documents: Document[] = [
+//   { title: "Политика конфиденциальности", link: "http://norma.policy.url" },
+//   { title: "Договор оферты", link: "http://norma.offer.url" },
+// ];
 
 const Document = ({ title, link }: Document) => {
   return (
     <TouchableOpacity
       style={{ padding: 20, marginBottom: 16, backgroundColor: THEME.WHITISH_F2F3F8, borderRadius: 8 }}
-      onPress={() => alert(link)}>
+      onPress={() => Linking.openURL(link)}>
       <Text style={{ fontFamily: THEME.FONTS.SFProText500 }}>{title}</Text>
     </TouchableOpacity>
   );
@@ -32,6 +33,23 @@ const Document = ({ title, link }: Document) => {
 
 const LegalDocuments = () => {
   useBackButton();
+  const [documents, setDocuments] = useState<Document[]>([]);
+  const getDocuments = async () => {
+    // dispatch(setIsLoading(true));
+    const policy = (await axiosQuery({ url: `/generic-data/policy-link` })).data.value;
+    const offer = (await axiosQuery({ url: `/generic-data/offer-link` })).data.value;
+    console.log("policy", policy);
+    setDocuments([
+      { title: "Политика конфиденциальности", link: policy },
+      { title: "Договор оферты", link: offer },
+    ]);
+    // setDocuments(res.data.value);
+    // dispatch(setIsLoading(false));
+  };
+
+  useEffect(() => {
+    getDocuments();
+  }, []);
   return (
     <Container>
       <Title style={{ textAlign: "left", marginBottom: 32 }}>Правовые документы</Title>
