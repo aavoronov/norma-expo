@@ -33,13 +33,13 @@ import SignUp from "./screens/SignUp";
 import Subscription from "./screens/Subscription";
 import SubscriptionCancelled from "./screens/SubscriptionCancelled";
 import Support from "./screens/Support";
-import TestFunctionalityTemp from "./screens/TestFuctionalityTemp";
 import { countVisit } from "./store/visitSlice";
 import { THEME } from "./theme";
 import { updateProfile } from "./store/userSlice";
 import axios from "axios";
 import * as SplashScreen from "expo-splash-screen";
 import SubscriptionComplete from "./screens/SubscriptionComplete";
+import NoConnectivity from "./screens/NoConnectivity";
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -168,13 +168,6 @@ const ProfileStackScreen = () => {
           </Layout>
         )}
       </ProfileStack.Screen>
-      <ProfileStack.Screen name={Screens.TestFunctionalityTemp}>
-        {() => (
-          <Layout>
-            <TestFunctionalityTemp />
-          </Layout>
-        )}
-      </ProfileStack.Screen>
       <ProfileStack.Screen name={Screens.ManageSubscription}>
         {() => (
           <Layout>
@@ -289,47 +282,6 @@ const linking = {
       invite: "/invite/:id/:name",
     },
   },
-  // async getInitialURL() {
-  //   // First, you may want to do the default deep link handling
-  //   // Check if app was opened from a deep link
-  //   const url = await Linking.getInitialURL();
-
-  //   if (url != null) {
-  //     return url;
-  //   }
-
-  //   // Handle URL from expo push notifications
-  //   const response = await Notifications.getLastNotificationResponseAsync();
-
-  //   console.log("response?.notification.request.content", response?.notification.request.content.data);
-
-  //   return response?.notification.request.content.data.link;
-  // },
-  // subscribe(listener) {
-  //   const onReceiveURL = ({ url }) => listener(url);
-
-  //   // Listen to incoming links from deep linking
-  //   const eventListenerSubscription = Linking.addEventListener("url", onReceiveURL);
-
-  //   // Listen to expo push notifications
-  //   const subscription = Notifications.addNotificationResponseReceivedListener((response) => {
-  //     const url = response.notification.request.content.data.link;
-  //     console.log("url", response.notification.request.content.data.link);
-  //     console.log("!!response", !!response);
-
-  //     // Any custom logic to see whether the URL needs to be handled
-  //     //...
-
-  //     // Let React Navigation handle the URL
-  //     listener(url);
-  //   });
-
-  //   return () => {
-  //     // Clean up the event listeners
-  //     eventListenerSubscription.remove();
-  //     subscription.remove();
-  //   };
-  // },
 };
 
 export default function NavTree() {
@@ -401,18 +353,11 @@ export default function NavTree() {
   useEffect(() => {
     const onLoadStart = () => {
       setStartTime(Date.now());
-      // console.log("fontsLoaded", fontsLoaded);
     };
 
     const onLoadEnd = () => {
-      // console.log("fontsLoaded", fontsLoaded);
-
       const endTime = Date.now();
       var timeDiff = endTime - startTime; //in ms
-      // console.log("startTime", startTime);
-      // console.log("endTime", endTime);
-
-      // console.log(timeDiff + " ms");
 
       const delay = timeDiff > 3000 ? 0 : 5000 - timeDiff;
       new Promise((resolve) => setTimeout(resolve, delay)).then((r) => SplashScreen.hideAsync());
@@ -488,6 +433,14 @@ export default function NavTree() {
               {() => <UnauthorizedScreen />}
             </Stack.Screen>
           )}
+          <Stack.Screen
+            options={{
+              headerTransparent: true,
+              headerShown: false,
+            }}
+            name={Screens.NoConnectivity}>
+            {() => <NoConnectivity />}
+          </Stack.Screen>
           {hasVisited && role === "user" && (
             <Stack.Group
               screenOptions={{
