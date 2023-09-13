@@ -135,7 +135,7 @@ const SingleCategory = ({ singleCategory, filter }: { singleCategory: Section; f
 
 const Filter = ({ filtersData, filter, setFilter }: { filtersData: Filter[]; filter: Filter; setFilter: SetState<Filter> }) => {
   return (
-    <ScrollView style={{ flexDirection: "row", marginBottom: 32 }} horizontal>
+    <ScrollView style={{ flexDirection: "row", marginBottom: 32, paddingBottom: 5 }} horizontal>
       {filtersData.map((item) => {
         const isSelected = filter === item;
         return (

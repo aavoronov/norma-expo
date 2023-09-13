@@ -56,6 +56,7 @@ export default function SignIn() {
       const res = await axios.post(`${THEME.API_URL}/users/auth`, data);
       dispatch(
         updateProfile({
+          id: res.data.user.id,
           name: res.data.user.name,
           subscriptionThrough: res.data.user.subscriptionThrough,
           // role: res.data.user.role,

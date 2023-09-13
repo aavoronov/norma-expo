@@ -241,13 +241,13 @@ const OtherThings = ({ navigation }: { navigation: NavigationProp }) => {
       <OtherThingsBtn text='Стать спикером' onPress={() => navigation.navigate(Screens.BecomeSpeaker)} />
       <OtherThingsBtn text='Обратиться в поддержку' onPress={() => navigation.navigate(Screens.Support)} />
       <OtherThingsBtn text='Правовые документы' onPress={() => navigation.navigate(Screens.LegalDocuments)} />
-      <TouchableOpacity
+      {/* <TouchableOpacity
         style={{ marginBottom: 24, flexDirection: "row", justifyContent: "space-between" }}
         hitSlop={10}
         onPress={() => navigation.navigate(Screens.TestFunctionalityTemp)}>
         <RegularText style={{ color: THEME.MAIN_RED }}>Потестить функционал</RegularText>
         <Chevron />
-      </TouchableOpacity>
+      </TouchableOpacity> */}
     </View>
   );
 };

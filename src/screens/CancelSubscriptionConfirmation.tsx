@@ -24,7 +24,7 @@ const CancelSubscriptionConfirmation = () => {
         onPress={async () => {
           // dispatch(setIsLoading(true));
           try {
-            const res = await axiosQuery({ method: "patch", url: "/users/edit", payload: { subscriptionCancelled: true } });
+            const res = await axiosQuery({ url: "/users/unsubscribe" });
             dispatch(updateProfile({ subscriptionCancelled: true }));
             navigation.navigate(Screens.SubscriptionCancelled);
           } catch (e) {

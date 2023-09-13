@@ -7,8 +7,6 @@ import { Title } from "../utilities";
 const SubscriptionCancelled = () => {
   const navigation = useAppNavigation();
 
-  useBackButton();
-
   useEffect(() => {
     setTimeout(() => navigation.popToTop(), 3000);
   }, []);

@@ -14,8 +14,15 @@ export const THEME = {
     SFProDisplay400: "SFProDisplay400",
     SFProDisplay500: "SFProDisplay500",
     SFProDisplay700: "SFProDisplay700",
+
+    StolzlThin250: "StolzlThin250",
+    StolzlLight300: "StolzlLight300",
+    StolzlRegular400: "StolzlRegular400",
+    StolzlMedium500: "StolzlMedium500",
+    StolzlBold700: "StolzlBold700",
+    StolzlBook: "StolzlBook",
   },
 
-  API_URL: "http://api.4212854-cv48730.tw1.ru",
+  API_URL: "https://api.24norma.ru",
   // API_URL: "http://192.168.1.68:5000/api/v1",
 };

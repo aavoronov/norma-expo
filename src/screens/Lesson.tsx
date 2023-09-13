@@ -1,19 +1,22 @@
-import { Video } from "expo-av";
 import { MutableRefObject, forwardRef, useEffect, useRef, useState } from "react";
-import { Image, Platform, Text, TouchableOpacity, View } from "react-native";
+import { Dimensions, ScrollView, Text, TouchableOpacity, View } from "react-native";
 import { Cell, Table, TableWrapper } from "react-native-table-component";
 import { styled } from "styled-components/native";
-import BackButton from "../components/BackButton";
 import Files from "../components/Files";
-import VideoPlayer from "../components/VideoPlayer";
+// import VideoPlayer from "../components/VideoPlayer";
+import Constants from "expo-constants";
+import * as NavigationBar from "expo-navigation-bar";
+import * as ScreenOrientation from "expo-screen-orientation";
+import { StatusBar } from "expo-status-bar";
+import VideoPlayer from "react-native-video-controls";
 import { HeartActive, HeartInactive, Lock, PlayBtn } from "../components/svgs";
 import { useAppDispatch, useAppNavigation, useAppSelector } from "../hooks";
-import { THEME } from "../theme";
-import { RegularText, Title, axiosQuery, checkSubscriptionValidity } from "../utilities";
-import * as ScreenOrientation from "expo-screen-orientation";
 import usePaidAction from "../hooks/usePaidAction";
 import { setFaves } from "../store/favesSlice";
-import { setIsLoading } from "../store/loaderSlice";
+import { setTabBarVisible } from "../store/tabBarStateSlice";
+import { THEME } from "../theme";
+import { RegularText, Title, axiosQuery, checkSubscriptionValidity } from "../utilities";
+import BackButton from "../components/BackButton";
 
 const Container = styled.ScrollView`
   width: 100%;
@@ -76,7 +79,7 @@ const FaveBtn = ({ isFaved, toggleFave, id }: { isFaved: boolean; toggleFave: (i
   );
 };
 
-function hmsToMs(str: string) {
+function hmsToSeconds(str: string) {
   var p = str.split(":"),
     s = 0,
     m = 1;
@@ -86,10 +89,12 @@ function hmsToMs(str: string) {
     m *= 60;
   }
 
-  return s * 1000;
+  console.log(s);
+
+  return s;
 }
 
-const TimingsTable = forwardRef(({ lessonData }: { lessonData: Lesson }, ref: MutableRefObject<Video>) => {
+const TimingsTable = forwardRef(({ lessonData }: { lessonData: Lesson }, ref: MutableRefObject<VideoPlayer>) => {
   const checkForPaidAction = usePaidAction();
   const timings: Timing[] = JSON.parse(lessonData.timings);
   return (
@@ -104,9 +109,15 @@ const TimingsTable = forwardRef(({ lessonData }: { lessonData: Lesson }, ref: Mu
                   <TouchableOpacity
                     onPress={() => {
                       lessonData.isPaid
-                        ? checkForPaidAction(() => ref.current.playFromPositionAsync(hmsToMs(cellData[1])))
-                        : ref.current.playFromPositionAsync(hmsToMs(cellData[1]));
-                    }}>
+                        ? checkForPaidAction(() => ref.current?.seekTo(hmsToSeconds(cellData[1])))
+                        : ref.current?.seekTo(hmsToSeconds(cellData[1]));
+                    }}
+                    // onPress={() => {
+                    //   lessonData.isPaid
+                    //     ? checkForPaidAction(() => ref.current?.player.ref.seek(hmsToSeconds(cellData[1])))
+                    //     : ref.current?.player.ref.seek(hmsToSeconds(cellData[1]));
+                    // }}
+                  >
                     <Text
                       style={{
                         color: THEME.MAIN_RED,
@@ -137,10 +148,12 @@ const Lesson = ({ route }) => {
   const isActive = checkSubscriptionValidity(subscriptionThrough);
 
   const [lessonData, setLessonData] = useState(null);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const [screenWidth, setScreenWidth] = useState(0);
 
   const faves = useAppSelector((state) => state.faves);
 
-  const videoRef = useRef<Video>(null);
+  const videoRef = useRef<VideoPlayer>(null);
 
   const data = route.params;
   const isFaved = faves.map((item) => item.id).includes(data.id);
@@ -156,6 +169,32 @@ const Lesson = ({ route }) => {
       console.log(e.response.data.message);
     }
   };
+
+  const enterFullscreen = () => {
+    try {
+      dispatch(setTabBarVisible(false));
+      setIsFullscreen(true);
+      NavigationBar.setVisibilityAsync("hidden");
+      ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.LANDSCAPE_RIGHT);
+    } catch (e) {
+      console.log(e);
+    }
+  };
+
+  const exitFullscreen = () => {
+    try {
+      dispatch(setTabBarVisible(true));
+      setIsFullscreen(false);
+      NavigationBar.setVisibilityAsync("visible");
+      ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT_UP);
+    } catch (e) {
+      console.log(e);
+    }
+  };
+
+  useEffect(() => {
+    setScreenWidth(Dimensions.get("screen").width);
+  }, []);
 
   useEffect(() => {
     (async () => {
@@ -173,38 +212,49 @@ const Lesson = ({ route }) => {
     })();
   }, []);
 
-  const handleDeviceRotation = async () => {
-    const orientation = await ScreenOrientation.getOrientationAsync();
+  // const handleDeviceRotation = async () => {
+  //   const orientation = await ScreenOrientation.getOrientationAsync();
 
-    const becameHorizontal = orientation === 3 || orientation === 4;
-    const becameVertical = orientation === 1;
+  //   const becameHorizontal = orientation === 3 || orientation === 4;
+  //   const becameVertical = orientation === 1;
 
-    if (becameHorizontal) {
-      !!videoRef.current && videoRef.current.presentFullscreenPlayer();
-    }
-    if (becameVertical) {
-      !!videoRef.current && videoRef.current.dismissFullscreenPlayer();
-    }
-  };
+  //   console.log("first");
 
-  useEffect(() => {
-    ScreenOrientation.lockAsync(0);
-    ScreenOrientation.addOrientationChangeListener(handleDeviceRotation);
-
-    return () => {
-      ScreenOrientation.removeOrientationChangeListeners();
-      ScreenOrientation.lockAsync(3);
-    };
-  }, []);
+  //   if (becameHorizontal) {
+  //     !!videoRef.current && videoRef.current.presentFullscreenPlayer();
+  //   }
+  //   if (becameVertical) {
+  //     !!videoRef.current && videoRef.current.dismissFullscreenPlayer();
+  //   }
+  // };
 
   return (
-    <Container>
-      <BackButton navigation={navigation} />
+    <Container as={isFullscreen ? View : ScrollView} style={{ marginTop: isFullscreen ? 0 : Constants.statusBarHeight }}>
+      <StatusBar hidden={isFullscreen} translucent />
 
       {(!lessonData?.isPaid || isActive) && lessonData?.video && (
-        <View style={{ width: "100%", height: 300, marginTop: 50, marginBottom: 100 }}>
-          <VideoPlayer ref={videoRef} />
-        </View>
+        <VideoPlayer
+          style={{ margin: 0, paddingBottom: 0, overflow: "visible" }}
+          // screenWidth={Dimensions.get("screen").width}
+          screenWidth={screenWidth}
+          source={{ uri: lessonData.video }}
+          onBack={() => navigation.goBack()}
+          paused
+          controlTimeout={10000}
+          scrubbing={1000}
+          onEnterFullscreen={enterFullscreen}
+          onExitFullscreen={exitFullscreen}
+          disableVolume
+          ref={videoRef}
+          isFullscreen={isFullscreen}
+          // ref={(ref) => (ref = videoRef)}
+          seekColor={THEME.MAIN_RED}
+          // thumbnailUri={lessonData.preview?.url ? `${THEME.API_URL}/uploads/previews/${lessonData.preview?.url}` : void 0}
+          thumbnailUri={`${THEME.API_URL}/uploads/previews/${lessonData.preview?.url}`}
+          fontFamily={THEME.FONTS.SFProDisplay700}
+          timeFontFamily={THEME.FONTS.SFProDisplay500}
+          header={lessonData.title}
+        />
       )}
       {!!lessonData?.isPaid && !isActive && (
         <View
@@ -216,6 +266,7 @@ const Lesson = ({ route }) => {
             justifyContent: "center",
             alignItems: "center",
           }}>
+          <BackButton navigation={navigation} />
           {/* <Image source={require("../../assets/coursePreviewLarge.png")} style={{ height: "70%" }} resizeMode='contain' /> */}
           <TouchableOpacity
             style={{
@@ -237,7 +288,7 @@ const Lesson = ({ route }) => {
 
       {!!lessonData && (
         <MainContentContainerWithPadding>
-          <Title style={{ textAlign: "left", marginBottom: 16 }}>{lessonData.title}</Title>
+          <Title style={{ textAlign: "left", marginBottom: 16, marginTop: 28 }}>{lessonData.title}</Title>
           {!!lessonData.isPaid && !isActive && <IsPaid />}
           <FaveBtn isFaved={isFaved} toggleFave={toggleFave} id={data.id} />
 
