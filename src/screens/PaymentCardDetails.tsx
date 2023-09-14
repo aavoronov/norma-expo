@@ -226,8 +226,8 @@ const PaymentCardDetails = ({ selectedPlan }: Props) => {
       const cryptogramPacket = await makeCryptogramPacket(data, merchantId);
 
       const payload = {
-        // Amount: `${selectedPlan.price}`,
-        Amount: 1,
+        Amount: selectedPlan.price,
+        // Amount: 1,
         Currency: Currency.ruble,
         CardCryptogramPacket: cryptogramPacket,
         IpAddress: ip,
@@ -523,8 +523,8 @@ const PaymentCardDetails = ({ selectedPlan }: Props) => {
 
           <ButtonPrimary
             onPress={handleSubmit(onSubmit)}
-            // text={`Оплатить ${sumToLocale(selectedPlan.price)} ₽`}
-            text={`Оплатить 1 ₽`}
+            text={`Оплатить ${sumToLocale(selectedPlan.price)} ₽`}
+            // text={`Оплатить 1 ₽`}
             disabled={!buttonEnabled}
           />
           <View style={{ height: 40, paddingTop: 10 }}>

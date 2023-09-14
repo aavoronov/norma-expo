@@ -37,7 +37,7 @@ const Loader = () => {
 
 export const Layout = ({ children, style }: { children: JSX.Element; style?: {} }): JSX.Element => {
   // const isLoading = useAppSelector((state) => state.loader);
-  const navigation = useAppNavigation();
+  // const navigation = useAppNavigation();
 
   const [isConnected, setIsConnected] = useState(true);
 
@@ -48,8 +48,8 @@ export const Layout = ({ children, style }: { children: JSX.Element; style?: {} 
 
   useEffect(() => {
     const unsubscribe = NetInfo.addEventListener((state) => {
-      console.log("Connection type", state.type);
-      console.log("Is connected?", state.isConnected);
+      // console.log("Connection type", state.type);
+      // console.log("Is connected?", state.isConnected);
       setIsConnected(state.isConnected);
       // if (!state.isConnected) {
       //   navigation.navigate(Screens.NoConnectivity);

@@ -469,7 +469,7 @@ export default function NavTree() {
               </Stack.Screen>
               <Stack.Screen name={Screens.Subscription} options={{ headerShown: true, title: "" }}>
                 {() => (
-                  <Layout style={{ paddingRight: 0, paddingLeft: 0 }}>
+                  <Layout style={{ paddingRight: 0, paddingLeft: 0, marginTop: 0 }}>
                     <Subscription />
                   </Layout>
                 )}

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { BackHandler, Image, Platform, Text, TouchableOpacity, View } from "react-native";
+import { BackHandler, Image, Platform, Text, TouchableOpacity, View, ScrollView } from "react-native";
 
 import { styled } from "styled-components/native";
 import ButtonPrimary from "../components/ButtonPrimary";
@@ -8,13 +8,15 @@ import { useAppDispatch, useAppNavigation } from "../hooks";
 import useBackButton from "../hooks/useBackButton";
 import { THEME } from "../theme";
 import { RegularText, SetState, Title, axiosQuery, sumToLocale } from "../utilities";
-import PaymentSystem from "./PaymentSystemTemp";
 import PaymentCardDetails from "./PaymentCardDetails";
+import { StyleSheet } from "react-native";
 
-const Container = styled.View`
-  height: 100%;
+const Container = styled.ScrollView`
+  /* height: 100%; */
+  /* margin-top: 0px; */
+  /* margin-bottom: 20px; */
   width: 100%;
-  padding: 80px 5%;
+  padding: 0 5% 0;
 `;
 
 export interface SubscriptionPlan {
@@ -26,7 +28,7 @@ export interface SubscriptionPlan {
   isGoodOffer: boolean;
 }
 
-const Modifier = ({ isGoodOffer }: Partial<SubscriptionPlan>) => {
+const Modifier = ({ isGoodOffer }: Pick<SubscriptionPlan, "isGoodOffer">) => {
   return (
     <View
       style={{
@@ -115,7 +117,7 @@ const SubscriptionPlans = ({ data, plan, setPlan }: { data: SubscriptionPlan[]; 
 
 const OfferBtn = () => {
   return (
-    <View style={{ flexDirection: "column", alignItems: "center" }}>
+    <View style={{ flexDirection: "column", alignItems: "center", marginBottom: 20 }}>
       <Text
         style={{
           verticalAlign: "middle",
@@ -158,6 +160,7 @@ const Subscription = () => {
             <Image source={require("../../assets/backIcon.png")} style={{ width: 24, height: 24 }} />
           </TouchableOpacity>
         ) : null,
+      headerTransparent: false,
     });
 
     const onBackPress = () => {
@@ -189,23 +192,26 @@ const Subscription = () => {
   };
 
   return (
-    <Container>
-      {stage === 0 && (
-        <>
-          <Title style={{ textAlign: "left", marginBottom: 16 }}>Выберите план подписки</Title>
-          <RegularText style={{ marginBottom: 36 }}>Полный доступ ко всем онлайн-курсам и лекциям</RegularText>
-          {!!plansData.length && <SubscriptionPlans data={plansData} plan={plan} setPlan={setPlan} />}
-          <Text style={{ textAlign: "left", fontFamily: THEME.FONTS.SFProText400, color: THEME.BLACKISH_2D2D31, fontSize: 12 }}>
-            Выбранный тариф будет продлеваться автоматически. Вы можете отменить автоматические платежи в личном кабинете в любое время до
-            даты платежа.
-          </Text>
-          {plan !== 0 && <ButtonPrimary text='Оформить подписку' onPress={handleSubmit} style={{ marginTop: 50, marginBottom: 25 }} />}
+    <View style={StyleSheet.absoluteFill}>
+      <Container>
+        {stage === 0 && (
+          <>
+            <Title style={{ textAlign: "left", marginBottom: 16 }}>Выберите план подписки</Title>
+            <RegularText style={{ marginBottom: 36 }}>Полный доступ ко всем онлайн-курсам и лекциям</RegularText>
+            {!!plansData.length && <SubscriptionPlans data={plansData} plan={plan} setPlan={setPlan} />}
+            <Text style={{ textAlign: "left", fontFamily: THEME.FONTS.SFProText400, color: THEME.BLACKISH_2D2D31, fontSize: 12 }}>
+              Выбранный тариф будет продлеваться автоматически. Вы можете отменить автоматические платежи в личном кабинете в любое время до
+              даты платежа.
+            </Text>
 
-          <OfferBtn />
-        </>
-      )}
-      {stage === 1 && <PaymentCardDetails selectedPlan={plansData.find((item) => item.id === plan)} />}
-    </Container>
+            {plan !== 0 && <ButtonPrimary text='Оформить подписку' onPress={handleSubmit} style={{ marginTop: 50, marginBottom: 25 }} />}
+
+            <OfferBtn />
+          </>
+        )}
+        {stage === 1 && <PaymentCardDetails selectedPlan={plansData.find((item) => item.id === plan)} />}
+      </Container>
+    </View>
   );
 };
 
