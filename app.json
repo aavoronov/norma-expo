@@ -2,7 +2,7 @@
   "expo": {
     "name": "Норма App",
     "slug": "norma-expo",
-    "version": "1.0.10",
+    "version": "1.0.13",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
@@ -15,7 +15,10 @@
     "ios": {
       "supportsTablet": true,
       "requireFullScreen": true,
-      "bundleIdentifier": "com.aavoronov.normaexpo"
+      "bundleIdentifier": "com.aavoronov.normaexpo",
+      "infoPlist": {
+        "NSCameraUsageDescription": "Приложение требует доступ к камере для сканирования банковской карты в процессе оплаты подписки."
+      }
     },
     "android": {
       "adaptiveIcon": {
