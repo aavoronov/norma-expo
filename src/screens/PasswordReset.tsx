@@ -10,7 +10,6 @@ import { useAppDispatch, useAppNavigation } from "../hooks";
 import useBackButton from "../hooks/useBackButton";
 import { THEME } from "../theme";
 import { axiosQuery } from "../utilities";
-import { setIsLoading } from "../store/loaderSlice";
 
 const FormHeader = styled.Text`
   font-size: 22px;

@@ -6,7 +6,6 @@ import useBackButton from "../hooks/useBackButton";
 import { resetUser } from "../store/userSlice";
 import { THEME } from "../theme";
 import { RegularText, Title, axiosQuery } from "../utilities";
-import { setIsLoading } from "../store/loaderSlice";
 
 const DeleteAccount = () => {
   useBackButton();

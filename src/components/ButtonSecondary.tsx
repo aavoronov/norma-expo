@@ -1,7 +1,6 @@
 import * as React from "react";
 import { styled } from "styled-components/native";
 import { THEME } from "../theme";
-// import { Mail, Phone } from "../components/svgs";
 
 const BtnWhite = styled.TouchableOpacity`
   background: #ffffff;
@@ -23,7 +22,6 @@ const TextWrap = styled.View`
   /* width: 50%; */
   margin: auto auto;
 `;
-// const iconStyles = "position: absolute;right: 15px;top: 10px;margin-right: 100px;";
 
 interface Props {
   hasIcon?: string;

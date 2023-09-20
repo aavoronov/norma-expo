@@ -305,6 +305,7 @@ export default function NavTree() {
   const dispatch = useAppDispatch();
 
   const role = useAppSelector((state) => state.user.role);
+  const subscriptionThrough = useAppSelector((state) => state.user.subscriptionThrough);
   const tabBarVisible = useAppSelector((state) => state.tabBar);
 
   const [hasLoaded, setHasLoaded] = useState(false);
@@ -345,10 +346,10 @@ export default function NavTree() {
   }, []);
 
   useEffect(() => {
-    if (!role) {
+    if (!role || !subscriptionThrough) {
       reauthorize();
     }
-  }, [role]);
+  }, [role, subscriptionThrough]);
 
   useEffect(() => {
     const onLoadStart = () => {

@@ -2,7 +2,7 @@ import { Text, TouchableOpacity, View } from "react-native";
 import { styled } from "styled-components/native";
 import { Screens } from "../Screens";
 import ButtonPrimary from "../components/ButtonPrimary";
-import { useAppDispatch, useAppNavigation, useAppSelector } from "../hooks";
+import { useAppNavigation, useAppSelector } from "../hooks";
 import useBackButton from "../hooks/useBackButton";
 import { THEME } from "../theme";
 import { Title } from "../utilities";
@@ -17,7 +17,6 @@ const Container = styled.View`
 const ManageProfile = () => {
   useBackButton();
   const { name: userName, email } = useAppSelector((state) => state.user);
-  const dispatch = useAppDispatch();
   const navigation = useAppNavigation();
 
   return (

@@ -1,15 +1,12 @@
 import { useEffect, useState } from "react";
-import { BackHandler, Image, Platform, Text, TouchableOpacity, View, ScrollView } from "react-native";
-
+import { BackHandler, Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { styled } from "styled-components/native";
 import ButtonPrimary from "../components/ButtonPrimary";
 import ButtonSecondary from "../components/ButtonSecondary";
-import { useAppDispatch, useAppNavigation } from "../hooks";
-import useBackButton from "../hooks/useBackButton";
+import { useAppNavigation } from "../hooks";
 import { THEME } from "../theme";
 import { RegularText, SetState, Title, axiosQuery, sumToLocale } from "../utilities";
 import PaymentCardDetails from "./PaymentCardDetails";
-import { StyleSheet } from "react-native";
 
 const Container = styled.ScrollView`
   /* height: 100%; */
@@ -141,12 +138,10 @@ const OfferBtn = () => {
 };
 
 const Subscription = () => {
-  const dispatch = useAppDispatch();
   const navigation = useAppNavigation();
 
   const [plansData, setPlansData] = useState<SubscriptionPlan[]>([]);
   const [plan, setPlan] = useState(0);
-  const [modalVisible, setModalVisible] = useState(false);
   const [stage, setStage] = useState(0);
 
   useEffect(() => {

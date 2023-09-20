@@ -4,10 +4,9 @@ import * as Progress from "react-native-progress";
 import { styled } from "styled-components/native";
 import { Screens } from "../Screens";
 import ButtonPrimary from "../components/ButtonPrimary";
-import { useAppDispatch, useAppNavigation } from "../hooks";
+import { useAppNavigation } from "../hooks";
 import { THEME } from "../theme";
 import { RegularText, Title, axiosQuery } from "../utilities";
-import { setIsLoading } from "../store/loaderSlice";
 
 const Container = styled.View`
   justify-content: space-between;
@@ -71,7 +70,6 @@ const Quiz = ({ route }) => {
   const [anticipations, setAnticipations] = useState<string[]>([]);
 
   const navigation = useAppNavigation();
-  const dispatch = useAppDispatch();
 
   useEffect(() => {
     (async () => {

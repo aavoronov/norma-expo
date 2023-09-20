@@ -1,15 +1,14 @@
+import NetInfo from "@react-native-community/netinfo";
 import Constants from "expo-constants";
+import * as ScreenOrientation from "expo-screen-orientation";
 import { StatusBar } from "expo-status-bar";
+import { useEffect, useState } from "react";
 import { View } from "react-native";
 import { UIActivityIndicator } from "react-native-indicators";
 import { styled } from "styled-components/native";
-import { useAppNavigation, useAppSelector } from "../hooks";
-import { THEME } from "../theme";
-import { useEffect, useState } from "react";
-import * as ScreenOrientation from "expo-screen-orientation";
-import NetInfo from "@react-native-community/netinfo";
-import { Screens } from "../Screens";
 import NoConnectivity from "../screens/NoConnectivity";
+import { THEME } from "../theme";
+import { useAppSelector } from "../hooks";
 
 const Container = styled.View`
   justify-content: center;
@@ -36,24 +35,16 @@ const Loader = () => {
 };
 
 export const Layout = ({ children, style }: { children: JSX.Element; style?: {} }): JSX.Element => {
-  // const isLoading = useAppSelector((state) => state.loader);
-  // const navigation = useAppNavigation();
-
   const [isConnected, setIsConnected] = useState(true);
+  const isLoading = useAppSelector((state) => state.loader);
 
   useEffect(() => {
     ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT_UP);
-    console.log(Constants.statusBarHeight);
   }, []);
 
   useEffect(() => {
     const unsubscribe = NetInfo.addEventListener((state) => {
-      // console.log("Connection type", state.type);
-      // console.log("Is connected?", state.isConnected);
       setIsConnected(state.isConnected);
-      // if (!state.isConnected) {
-      //   navigation.navigate(Screens.NoConnectivity);
-      // }
     });
 
     // To unsubscribe to these update, just use:
@@ -63,7 +54,7 @@ export const Layout = ({ children, style }: { children: JSX.Element; style?: {} 
   return (
     <Container style={style}>
       <StatusBar style='dark' />
-      {/* {!!isLoading && <Loader />} */}
+      {!!isLoading && <Loader />}
       {isConnected ? children : <NoConnectivity />}
     </Container>
   );

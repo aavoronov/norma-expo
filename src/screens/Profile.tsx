@@ -4,13 +4,12 @@ import { ImageBackground, ScrollView, Text, TouchableOpacity, View } from "react
 import { styled } from "styled-components/native";
 import { Screens } from "../Screens";
 import ButtonPrimary from "../components/ButtonPrimary";
-import { Chevron, ChevronGrey, CoursePreview, LockSmall } from "../components/svgs";
+import { Chevron, ChevronGrey, LockSmall } from "../components/svgs";
 import { useAppDispatch, useAppNavigation, useAppSelector } from "../hooks";
 import { setFaves } from "../store/favesSlice";
 import { updateProfile } from "../store/userSlice";
 import { THEME } from "../theme";
 import { NavigationProp, RegularText, Title, axiosQuery, checkSubscriptionValidity, subscriptionText, videoLength } from "../utilities";
-import { setIsLoading } from "../store/loaderSlice";
 
 const Container = styled.ScrollView`
   width: 100%;

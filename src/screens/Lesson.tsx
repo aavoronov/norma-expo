@@ -17,6 +17,7 @@ import { setTabBarVisible } from "../store/tabBarStateSlice";
 import { THEME } from "../theme";
 import { RegularText, Title, axiosQuery, checkSubscriptionValidity } from "../utilities";
 import BackButton from "../components/BackButton";
+import { setIsLoading } from "../store/loaderSlice";
 
 const Container = styled.ScrollView`
   width: 100%;
@@ -200,7 +201,7 @@ const Lesson = ({ route }) => {
     (async () => {
       if (!!route.params.id) {
         try {
-          // dispatch(setIsLoading(true));
+          dispatch(setIsLoading(true));
           const res = await axiosQuery({ url: `/lessons/${route.params.id}` });
 
           setLessonData(res.data);
@@ -254,6 +255,7 @@ const Lesson = ({ route }) => {
           fontFamily={THEME.FONTS.SFProDisplay700}
           timeFontFamily={THEME.FONTS.SFProDisplay500}
           header={lessonData.title}
+          onLoad={() => dispatch(setIsLoading(false))}
         />
       )}
       {!!lessonData?.isPaid && !isActive && (

@@ -2,11 +2,9 @@ import { useEffect, useState } from "react";
 import { ImageBackground, ScrollView, Text, TouchableOpacity, View } from "react-native";
 import { styled } from "styled-components/native";
 import { Screens } from "../Screens";
-import { CoursePreview } from "../components/svgs";
-import { useAppDispatch, useAppNavigation, useAppSelector } from "../hooks";
+import { useAppNavigation, useAppSelector } from "../hooks";
 import { THEME } from "../theme";
 import { RegularText, SetState, Title, axiosQuery, videoLength } from "../utilities";
-import { setIsLoading } from "../store/loaderSlice";
 
 type ActivityTypes = "fitness" | "restaurants" | "tourism";
 
@@ -163,7 +161,6 @@ const Courses = () => {
 
   const [coursesData, setCoursesData] = useState<Section[]>([]);
   const [filtersData, setFiltersData] = useState<Filter[]>([]);
-  const dispatch = useAppDispatch();
 
   const getCourses = async () => {
     // dispatch(setIsLoading(true));

@@ -4,11 +4,10 @@ import { styled } from "styled-components/native";
 import { Screens } from "../Screens";
 import BackButton from "../components/BackButton";
 import Files from "../components/Files";
-import { CoursePreview, LockSmall } from "../components/svgs";
-import { useAppDispatch, useAppNavigation, useAppSelector } from "../hooks";
+import { LockSmall } from "../components/svgs";
+import { useAppNavigation, useAppSelector } from "../hooks";
 import { THEME } from "../theme";
 import { RegularText, Title, axiosQuery, checkSubscriptionValidity, videoLength } from "../utilities";
-import { setIsLoading } from "../store/loaderSlice";
 
 const Container = styled.ScrollView`
   width: 100%;
@@ -22,20 +21,6 @@ const MainContentContainerWithPadding = styled.View`
 const Section = styled.View`
   margin-bottom: 35px;
 `;
-
-// interface Lesson {
-//   id: number;
-//   order: number;
-//   isPaid: boolean;
-//   title: string;
-//   duration: number;
-//   files:
-//     | {
-//         title: string;
-//         link: string;
-//       }[]
-//     | [];
-// }
 
 interface File {
   title: string;
@@ -76,17 +61,6 @@ const LessonThumb = ({ lesson, index }: { lesson: Lesson; index: number }) => {
   const subscriptionThrough = useAppSelector((state) => state.user.subscriptionThrough);
   const hasAccess = checkSubscriptionValidity(subscriptionThrough) || !isPaid;
   const noAccess = !hasAccess;
-
-  // useEffect(() => {
-
-  // },[])
-  // const checkForPaidAction = usePaidAction();
-
-  // const handlePress = () => {
-  //   isPaid
-  //     ? checkForPaidAction(() => navigation.navigate({ name: Screens.Lesson, params: {} }))
-  //     : navigation.navigate({ name: Screens.Lesson, params: {} });
-  // };
 
   return (
     <TouchableOpacity
@@ -170,9 +144,7 @@ const LessonThumb = ({ lesson, index }: { lesson: Lesson; index: number }) => {
 };
 
 const Course = ({ route }) => {
-  const dispatch = useAppDispatch();
   const navigation = useAppNavigation();
-  const data = route.params;
 
   const [courseData, setCourseData] = useState<Course>(null);
   const [files, setFiles] = useState<SingleLessonFiles[]>([]);

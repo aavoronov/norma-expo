@@ -1,7 +1,6 @@
 import { useEffect } from "react";
 import { Image } from "react-native";
 import { useAppNavigation } from "../hooks";
-import useBackButton from "../hooks/useBackButton";
 import { Title } from "../utilities";
 
 const SubscriptionCancelled = () => {

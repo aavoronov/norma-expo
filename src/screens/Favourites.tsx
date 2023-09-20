@@ -1,7 +1,7 @@
 import { ImageBackground, Text, TouchableOpacity, View } from "react-native";
 import { styled } from "styled-components/native";
 import { Screens } from "../Screens";
-import { CoursePreview, LockSmall } from "../components/svgs";
+import { LockSmall } from "../components/svgs";
 import { useAppNavigation, useAppSelector } from "../hooks";
 import useBackButton from "../hooks/useBackButton";
 import { THEME } from "../theme";

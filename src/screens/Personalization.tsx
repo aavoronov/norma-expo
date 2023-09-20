@@ -92,7 +92,6 @@ const Personalization = ({ route }): JSX.Element => {
   useEffect(() => {
     if (complete)
       setTimeout(() => {
-        console.log("userData", userData);
         login();
       }, 2000);
   }, [complete]);

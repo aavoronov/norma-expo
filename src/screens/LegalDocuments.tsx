@@ -16,11 +16,6 @@ interface Document {
   link: string;
 }
 
-// const documents: Document[] = [
-//   { title: "Политика конфиденциальности", link: "http://norma.policy.url" },
-//   { title: "Договор оферты", link: "http://norma.offer.url" },
-// ];
-
 const Document = ({ title, link }: Document) => {
   return (
     <TouchableOpacity
@@ -38,7 +33,6 @@ const LegalDocuments = () => {
     // dispatch(setIsLoading(true));
     const policy = (await axiosQuery({ url: `/generic-data/policy-link` })).data.value;
     const offer = (await axiosQuery({ url: `/generic-data/offer-link` })).data.value;
-    console.log("policy", policy);
     setDocuments([
       { title: "Политика конфиденциальности", link: policy },
       { title: "Договор оферты", link: offer },

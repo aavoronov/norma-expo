@@ -11,12 +11,6 @@ const Btn = styled.TouchableOpacity`
   width: 100%;
   height: 51px;
   border-radius: 8px;
-  /* margin-bottom: 39px; */
-  /* display: flex; */
-  /* flex-direction: row;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0 10px; */
 `;
 
 const TextCustom = styled.Text`
@@ -34,12 +28,6 @@ const TextCustom = styled.Text`
   margin: auto 0;
   font-family: ${THEME.FONTS.SFProText600};
 `;
-
-// const Arrow = styled(ArrowIcon)`
-//   position: absolute;
-//   right: 15px;
-//   top: 10px;
-// `;
 
 const Icon = styled.Image`
   /* position: absolute; */
@@ -75,12 +63,8 @@ const ButtonPrimary = ({ hasArrow, hasIcon, text, onPress, style, textStyle, dis
       onPress={onPress}
       style={disabled ? [{ backgroundColor: THEME.GRAY_A8A8B1 }, style] : [style]}>
       <TextWrap>
-        {/* {hasIcon == "wallet" && <Icon source={require("../../assets/wallet.png")} style={{ width: 20, height: 20 }} />}
-         */}
-
         <TextCustom style={[!hasIcon && { width: "100%" }, disabled && { color: THEME.LIGHT_GRAY_DADBE3 }, textStyle]}>{text}</TextCustom>
       </TextWrap>
-      {/* {hasArrow && <Arrow />} */}
     </Btn>
   );
 };

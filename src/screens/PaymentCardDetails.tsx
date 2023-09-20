@@ -1,19 +1,17 @@
-import { View, Text, TouchableWithoutFeedback, Keyboard, TextInput, Linking } from "react-native";
-import { THEME } from "../theme";
-import { Controller, UseFormSetError, useForm } from "react-hook-form";
 import axios from "axios";
-import ButtonSecondary from "../components/ButtonSecondary";
-import { Screens } from "../Screens";
+import { useEffect, useRef, useState } from "react";
+import { Controller, UseFormSetError, useForm } from "react-hook-form";
+import { Keyboard, Text, TextInput, TouchableWithoutFeedback, View } from "react-native";
+import { Card, Currency } from "react-native-cloudpayments-sdk";
 import { styled } from "styled-components/native";
-import TextField from "../components/TextField";
-import { useCallback, useEffect, useRef, useState } from "react";
-import CheckboxItem from "../components/CheckboxItem";
+import { Screens } from "../Screens";
 import ButtonPrimary from "../components/ButtonPrimary";
+import CheckboxItem from "../components/CheckboxItem";
+import TextField from "../components/TextField";
 import { useAppNavigation, useAppSelector } from "../hooks";
+import { THEME } from "../theme";
 import { axiosQuery, sumToLocale } from "../utilities";
-import { Card, CreditCardForm, Currency } from "react-native-cloudpayments-sdk";
 import { SubscriptionPlan } from "./Subscription";
-import { Buffer } from "buffer";
 // const Buffer = require("buffer").Buffer;
 
 const FormHeader = styled.Text`
@@ -152,7 +150,6 @@ const completeTransaction = async (TransactionId: string, PaRes: string, authori
 
 const unsubscribe = async () => {
   const res = await axiosQuery({ url: `/users/unsubscribe` });
-  console.log("unsubscribe res data", res.data);
   return true;
 };
 
@@ -164,13 +161,13 @@ const subscribe = async (payload: InitiateSubscritionPayload, requestId: string,
       Authorization: `Basic ${authorization}`,
     },
   });
-  console.log("subscription res.data", res.data);
 };
 
 const PaymentCardDetails = ({ selectedPlan }: Props) => {
   const [emailFieldActive, setEmailFieldActive] = useState(true);
   const [formError, setFormError] = useState("");
   const [requestId, setRequestId] = useState(`${Date.now()}${Math.random()}`.replace(".", ""));
+  const [buttonText, setButtonText] = useState(`Оплатить ${sumToLocale(selectedPlan.price)} ₽`);
 
   const navigation = useAppNavigation();
 
@@ -207,19 +204,18 @@ const PaymentCardDetails = ({ selectedPlan }: Props) => {
 
   const onSubmit = async (data: CardData) => {
     setFormError("");
+    setButtonText("Обработка...");
+
+    unsubscribe();
 
     const { merchantId, authorization } = await getPaymentInfo();
-    console.log("merchantId", merchantId);
-    console.log("authorization", authorization);
 
-    console.log(authorization);
     try {
       {
         //requestAuthenticationData
         //
       }
       const { ip } = await getIp();
-      console.log("ip", ip);
 
       checkDataValidity(data, setError);
 
@@ -237,7 +233,6 @@ const PaymentCardDetails = ({ selectedPlan }: Props) => {
       };
 
       const chargeRes = await charge(payload, authorization, requestId);
-      console.log("chargeRes", chargeRes);
 
       const { Message, Model, Success } = chargeRes;
       let token: string;
@@ -260,10 +255,11 @@ const PaymentCardDetails = ({ selectedPlan }: Props) => {
           paReq: Model.PaReq,
           acsUrl: Model.AcsUrl,
         });
-        console.log("TransactionId, PaRes", TransactionId, PaRes);
 
         const transaction = await completeTransaction(TransactionId, PaRes, authorization, requestId);
-        console.log("res", transaction);
+        if (!transaction.Success) {
+          throw new Error(transaction.Model.CardHolderMessage);
+        }
         token = transaction.Model.Token;
       }
 
@@ -272,14 +268,12 @@ const PaymentCardDetails = ({ selectedPlan }: Props) => {
         const datetime = inXdays(x).toUTCString().substring(5, 25);
         const [day, month, year] = datetime.substring(0, 11).split(" ");
         const time = datetime.substring(12, 20);
-        console.log(day, month, year, time);
         const monthNumberFromString = (str: string) => {
           return "JanFebMarAprMayJunJulAugSepOctNovDec".indexOf(str) / 3 + 1;
         };
         const date = year + "-" + monthNumberFromString(month) + "-" + day;
         return date + " " + time;
       };
-      console.log(getFirstPaymentDate(selectedPlan.term));
 
       // const mockFirstPaymentDate = "2023-09-12 22:13:00";
 
@@ -290,23 +284,23 @@ const PaymentCardDetails = ({ selectedPlan }: Props) => {
         Email: data.email,
         Amount: selectedPlan.price,
         Currency: Currency.ruble,
-        RequireConfirmation: true,
+        RequireConfirmation: false,
         StartDate: getFirstPaymentDate(selectedPlan.term),
         // StartDate: mockFirstPaymentDate,
         Interval: "day",
         Period: selectedPlan.term,
       };
 
-      await unsubscribe();
-
-      await subscribe(subscriptionPayload, requestId, authorization);
+      subscribe(subscriptionPayload, requestId, authorization);
 
       navigation.navigate(Screens.SubscriptionComplete);
     } catch (e) {
-      console.log(e);
+      console.log(e.message);
+      setFormError(e.message);
       // dispatch(toggle({ text: e.response?.data?.message ?? e.message, type: "error" }));
       //   setError("email", { type: "manual", message: e.response?.data?.message });
     }
+    setButtonText(`Оплатить ${sumToLocale(selectedPlan.price)} ₽`);
   };
 
   const ref_input1 = useRef<TextInput>(null);
@@ -329,7 +323,6 @@ const PaymentCardDetails = ({ selectedPlan }: Props) => {
     const cardValue = whitespacedValue.replace(/\D/g, "").match(/(\d{0,4})(\d{0,4})(\d{0,4})(\d{0,4})/);
     if (cardValue) {
       whitespacedValue = buildCardNumber(cardValue);
-      console.log("whitespacedValue", whitespacedValue);
 
       // setCard(numbers);
     }
@@ -350,7 +343,6 @@ const PaymentCardDetails = ({ selectedPlan }: Props) => {
     const termValue = sanitizedValue.replace(/\D/g, "").match(/(\d{0,3})/);
     if (termValue) {
       sanitizedValue = termValue[1];
-      console.log(sanitizedValue);
     }
     setValue("cvv", sanitizedValue);
   };
@@ -523,7 +515,7 @@ const PaymentCardDetails = ({ selectedPlan }: Props) => {
 
           <ButtonPrimary
             onPress={handleSubmit(onSubmit)}
-            text={`Оплатить ${sumToLocale(selectedPlan.price)} ₽`}
+            text={buttonText}
             // text={`Оплатить 1 ₽`}
             disabled={!buttonEnabled}
           />

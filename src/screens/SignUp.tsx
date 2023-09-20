@@ -12,7 +12,6 @@ import { useAppDispatch, useAppNavigation, useAppSelector } from "../hooks";
 import useBackButton from "../hooks/useBackButton";
 import { THEME } from "../theme";
 import { countVisit } from "../store/visitSlice";
-
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const FormHeader = styled.Text`

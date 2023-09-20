@@ -1,20 +1,15 @@
+import { useEffect, useState } from "react";
 import { Image } from "react-native";
 import ButtonPrimary from "../components/ButtonPrimary";
 import useBackButton from "../hooks/useBackButton";
 import { RegularText, Title, axiosQuery, mailto } from "../utilities";
-import { useState, useEffect } from "react";
-import { setIsLoading } from "../store/loaderSlice";
-import { useAppDispatch } from "../hooks";
 
 const BecomeSpeaker = () => {
   const [adminEmail, setAdminEmail] = useState("");
-  const dispatch = useAppDispatch();
 
   const getAdminEmail = async () => {
-    // dispatch(setIsLoading(true));
     const res = await axiosQuery({ url: `/generic-data/email` });
     setAdminEmail(res.data.value);
-    // dispatch(setIsLoading(false));
   };
 
   useEffect(() => {
