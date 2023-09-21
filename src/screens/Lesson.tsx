@@ -1,5 +1,5 @@
 import { MutableRefObject, forwardRef, useEffect, useRef, useState } from "react";
-import { Dimensions, ScrollView, Text, TouchableOpacity, View } from "react-native";
+import { Dimensions, Platform, ScrollView, Text, TouchableOpacity, View } from "react-native";
 import { Cell, Table, TableWrapper } from "react-native-table-component";
 import { styled } from "styled-components/native";
 import Files from "../components/Files";
@@ -174,7 +174,9 @@ const Lesson = ({ route }) => {
   const enterFullscreen = () => {
     try {
       dispatch(setTabBarVisible(false));
-      NavigationBar.setVisibilityAsync("hidden");
+      if (Platform.OS === "android") {
+        NavigationBar.setVisibilityAsync("hidden");
+      }
       setIsFullscreen(true);
       ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.LANDSCAPE_RIGHT);
       setTimeout(() => {
@@ -188,7 +190,9 @@ const Lesson = ({ route }) => {
   const exitFullscreen = () => {
     try {
       dispatch(setTabBarVisible(true));
-      NavigationBar.setVisibilityAsync("visible");
+      if (Platform.OS === "android") {
+        NavigationBar.setVisibilityAsync("visible");
+      }
       setIsFullscreen(false);
       ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT_UP);
       setTimeout(() => {
@@ -228,7 +232,9 @@ const Lesson = ({ route }) => {
 
     if (becameHorizontal) {
       dispatch(setTabBarVisible(false));
-      NavigationBar.setVisibilityAsync("hidden");
+      if (Platform.OS === "android") {
+        NavigationBar.setVisibilityAsync("hidden");
+      }
       setIsFullscreen(true);
       // !!videoRef && videoRef.current?._toggleFullscreen();
       console.log("becameHorizontal");
@@ -236,7 +242,9 @@ const Lesson = ({ route }) => {
     if (becameVertical) {
       // !!videoRef && videoRef.current?._toggleFullscreen();
       dispatch(setTabBarVisible(true));
-      NavigationBar.setVisibilityAsync("visible");
+      if (Platform.OS === "android") {
+        NavigationBar.setVisibilityAsync("visible");
+      }
       setIsFullscreen(false);
       console.log("becameVertical");
     }

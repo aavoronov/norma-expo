@@ -17,7 +17,9 @@
       "requireFullScreen": true,
       "bundleIdentifier": "com.aavoronov.normaexpo",
       "infoPlist": {
-        "NSCameraUsageDescription": "Приложение требует доступ к камере для сканирования банковской карты в процессе оплаты подписки."
+        "NSCameraUsageDescription": "Приложение требует доступ к камере для сканирования банковской карты в процессе оплаты подписки.",
+        "UISupportedInterfaceOrientations": ["UIInterfaceOrientationLandscapeRight", "UIInterfaceOrientationPortrait"],
+        "UISupportedInterfaceOrientations~ipad": ["UIInterfaceOrientationLandscapeRight", "UIDeviceOrientationPortrait"]
       }
     },
     "android": {
