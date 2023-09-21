@@ -174,9 +174,12 @@ const Lesson = ({ route }) => {
   const enterFullscreen = () => {
     try {
       dispatch(setTabBarVisible(false));
-      setIsFullscreen(true);
       NavigationBar.setVisibilityAsync("hidden");
+      setIsFullscreen(true);
       ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.LANDSCAPE_RIGHT);
+      setTimeout(() => {
+        ScreenOrientation.unlockAsync();
+      }, 2500);
     } catch (e) {
       console.log(e);
     }
@@ -185,9 +188,12 @@ const Lesson = ({ route }) => {
   const exitFullscreen = () => {
     try {
       dispatch(setTabBarVisible(true));
-      setIsFullscreen(false);
       NavigationBar.setVisibilityAsync("visible");
+      setIsFullscreen(false);
       ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT_UP);
+      setTimeout(() => {
+        ScreenOrientation.unlockAsync();
+      }, 2500);
     } catch (e) {
       console.log(e);
     }
@@ -213,21 +219,40 @@ const Lesson = ({ route }) => {
     })();
   }, []);
 
-  // const handleDeviceRotation = async () => {
-  //   const orientation = await ScreenOrientation.getOrientationAsync();
+  const handleDeviceRotation = async () => {
+    const orientation = await ScreenOrientation.getOrientationAsync();
 
-  //   const becameHorizontal = orientation === 3 || orientation === 4;
-  //   const becameVertical = orientation === 1;
+    const becameHorizontal =
+      orientation === ScreenOrientation.Orientation.LANDSCAPE_LEFT || orientation === ScreenOrientation.Orientation.LANDSCAPE_RIGHT;
+    const becameVertical = orientation === ScreenOrientation.Orientation.PORTRAIT_UP;
 
-  //   console.log("first");
+    if (becameHorizontal) {
+      dispatch(setTabBarVisible(false));
+      NavigationBar.setVisibilityAsync("hidden");
+      setIsFullscreen(true);
+      // !!videoRef && videoRef.current?._toggleFullscreen();
+      console.log("becameHorizontal");
+    }
+    if (becameVertical) {
+      // !!videoRef && videoRef.current?._toggleFullscreen();
+      dispatch(setTabBarVisible(true));
+      NavigationBar.setVisibilityAsync("visible");
+      setIsFullscreen(false);
+      console.log("becameVertical");
+    }
+  };
 
-  //   if (becameHorizontal) {
-  //     !!videoRef.current && videoRef.current.presentFullscreenPlayer();
-  //   }
-  //   if (becameVertical) {
-  //     !!videoRef.current && videoRef.current.dismissFullscreenPlayer();
-  //   }
-  // };
+  useEffect(() => {
+    ScreenOrientation.unlockAsync();
+    const subscription = ScreenOrientation.addOrientationChangeListener(handleDeviceRotation);
+    console.log("test");
+
+    return () => {
+      ScreenOrientation.removeOrientationChangeListener(subscription);
+      ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT_UP);
+      console.log("untest");
+    };
+  }, []);
 
   return (
     <Container as={isFullscreen ? View : ScrollView} style={{ marginTop: isFullscreen ? 0 : Constants.statusBarHeight }}>

@@ -260,10 +260,10 @@ const Profile = () => {
     useCallback(() => {
       (async () => {
         // dispatch(setIsLoading(true));
-        if (!emailConfirmed) {
-          const res = await axiosQuery({ url: "/users/reauth" });
-          dispatch(updateProfile({ ...res.data, role: "user" }));
-        }
+
+        const res = await axiosQuery({ url: "/users/reauth" });
+        dispatch(updateProfile({ ...res.data, role: "user" }));
+
         // dispatch(setIsLoading(false));
       })();
     }, [])

@@ -36,11 +36,6 @@ const Loader = () => {
 
 export const Layout = ({ children, style }: { children: JSX.Element; style?: {} }): JSX.Element => {
   const [isConnected, setIsConnected] = useState(true);
-  const isLoading = useAppSelector((state) => state.loader);
-
-  useEffect(() => {
-    ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT_UP);
-  }, []);
 
   useEffect(() => {
     const unsubscribe = NetInfo.addEventListener((state) => {
@@ -54,7 +49,7 @@ export const Layout = ({ children, style }: { children: JSX.Element; style?: {} 
   return (
     <Container style={style}>
       <StatusBar style='dark' />
-      {!!isLoading && <Loader />}
+
       {isConnected ? children : <NoConnectivity />}
     </Container>
   );

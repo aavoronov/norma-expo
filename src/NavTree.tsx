@@ -40,6 +40,9 @@ import axios from "axios";
 import * as SplashScreen from "expo-splash-screen";
 import SubscriptionComplete from "./screens/SubscriptionComplete";
 import NoConnectivity from "./screens/NoConnectivity";
+import { UIActivityIndicator } from "react-native-indicators";
+import { View } from "react-native";
+import * as ScreenOrientation from "expo-screen-orientation";
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -63,10 +66,26 @@ const ProfileIcon = ({ focused, color, size }: { focused: boolean; color?: strin
 
 const HomeStack = createNativeStackNavigator();
 
+const Loader = () => {
+  return (
+    <View
+      style={{
+        width: "100%",
+        height: "100%",
+        position: "absolute",
+        justifyContent: "center",
+        backgroundColor: "white",
+        zIndex: 100,
+      }}>
+      <UIActivityIndicator color={THEME.MAIN_RED} count={12} />
+    </View>
+  );
+};
+
 const HomeStackScreen = () => {
   // const bottomTabBarHeight = useBottomTabBarHeight();
   // console.log(bottomTabBarHeight);
-
+  const isLoading = useAppSelector((state) => state.loader);
   return (
     <HomeStack.Navigator
       screenOptions={{
@@ -92,7 +111,10 @@ const HomeStackScreen = () => {
       <HomeStack.Screen name={Screens.Lesson} options={{ headerShown: false }}>
         {({ route }) => (
           <Layout style={{ paddingRight: 0, paddingLeft: 0, marginTop: 0 }}>
-            <Lesson route={route} />
+            <>
+              {!!isLoading && <Loader />}
+              <Lesson route={route} />
+            </>
           </Layout>
         )}
       </HomeStack.Screen>
@@ -304,6 +326,10 @@ export default function NavTree() {
   const hasVisited = useAppSelector((state) => state.visit.hasVisited);
   const dispatch = useAppDispatch();
 
+  useEffect(() => {
+    ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT_UP);
+  }, []);
+
   const role = useAppSelector((state) => state.user.role);
   const subscriptionThrough = useAppSelector((state) => state.user.subscriptionThrough);
   const tabBarVisible = useAppSelector((state) => state.tabBar);
@@ -346,10 +372,10 @@ export default function NavTree() {
   }, []);
 
   useEffect(() => {
-    if (!role || !subscriptionThrough) {
+    if (!role) {
       reauthorize();
     }
-  }, [role, subscriptionThrough]);
+  }, [role]);
 
   useEffect(() => {
     const onLoadStart = () => {
