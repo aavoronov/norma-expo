@@ -151,6 +151,8 @@ const Lesson = ({ route }) => {
   const [lessonData, setLessonData] = useState(null);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [screenWidth, setScreenWidth] = useState(0);
+  const [hasBeenStarted, setHasBeenStarted] = useState(false);
+  const [currentTime, setCurrentTime] = useState(3);
 
   const faves = useAppSelector((state) => state.faves);
 
@@ -268,14 +270,17 @@ const Lesson = ({ route }) => {
 
       {(!lessonData?.isPaid || isActive) && lessonData?.video && (
         <VideoPlayer
+          setCurrentTime={setCurrentTime}
+          currentTime={currentTime}
+          setHasBeenStarted={setHasBeenStarted}
+          hasBeenStarted={hasBeenStarted}
           style={{ margin: 0, paddingBottom: 0, overflow: "visible" }}
           // screenWidth={Dimensions.get("screen").width}
           screenWidth={screenWidth}
           source={{ uri: lessonData.video }}
           onBack={() => navigation.goBack()}
-          paused
           controlTimeout={10000}
-          scrubbing={1000}
+          scrubbing={10}
           onEnterFullscreen={enterFullscreen}
           onExitFullscreen={exitFullscreen}
           disableVolume
