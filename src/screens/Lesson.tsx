@@ -9,15 +9,15 @@ import * as NavigationBar from "expo-navigation-bar";
 import * as ScreenOrientation from "expo-screen-orientation";
 import { StatusBar } from "expo-status-bar";
 import VideoPlayer from "react-native-video-controls";
+import BackButton from "../components/BackButton";
 import { HeartActive, HeartInactive, Lock, PlayBtn } from "../components/svgs";
 import { useAppDispatch, useAppNavigation, useAppSelector } from "../hooks";
 import usePaidAction from "../hooks/usePaidAction";
 import { setFaves } from "../store/favesSlice";
+import { setIsLoading } from "../store/loaderSlice";
 import { setTabBarVisible } from "../store/tabBarStateSlice";
 import { THEME } from "../theme";
 import { RegularText, Title, axiosQuery, checkSubscriptionValidity } from "../utilities";
-import BackButton from "../components/BackButton";
-import { setIsLoading } from "../store/loaderSlice";
 
 const Container = styled.ScrollView`
   width: 100%;
@@ -90,8 +90,6 @@ function hmsToSeconds(str: string) {
     m *= 60;
   }
 
-  console.log(s);
-
   return s;
 }
 
@@ -152,7 +150,7 @@ const Lesson = ({ route }) => {
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [screenWidth, setScreenWidth] = useState(0);
   const [hasBeenStarted, setHasBeenStarted] = useState(false);
-  const [currentTime, setCurrentTime] = useState(3);
+  const [currentTime, setCurrentTime] = useState(0);
 
   const faves = useAppSelector((state) => state.faves);
 
@@ -239,7 +237,6 @@ const Lesson = ({ route }) => {
       }
       setIsFullscreen(true);
       // !!videoRef && videoRef.current?._toggleFullscreen();
-      console.log("becameHorizontal");
     }
     if (becameVertical) {
       // !!videoRef && videoRef.current?._toggleFullscreen();
@@ -248,19 +245,16 @@ const Lesson = ({ route }) => {
         NavigationBar.setVisibilityAsync("visible");
       }
       setIsFullscreen(false);
-      console.log("becameVertical");
     }
   };
 
   useEffect(() => {
     ScreenOrientation.unlockAsync();
     const subscription = ScreenOrientation.addOrientationChangeListener(handleDeviceRotation);
-    console.log("test");
 
     return () => {
       ScreenOrientation.removeOrientationChangeListener(subscription);
       ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT_UP);
-      console.log("untest");
     };
   }, []);
 
